@@ -5,12 +5,10 @@ import renderer.Shader;
 import util.AssetPool;
 import util.Utils;
 
-import static jade.Constants.shadersPath;
-
 public class GameConsts {
 
     public static final Shader
-            SNAKE_SH = AssetPool.getShader(shadersPath + "snake.glsl");
+            SNAKE_SH = AssetPool.getShader("assets/shaders/snake.glsl");
 
     public static final Vector4f
         SAND_COLOR = Utils.hexToRgba("fee8b9"),

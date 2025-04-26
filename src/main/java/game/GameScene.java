@@ -1,25 +1,31 @@
 package game;
 
-import components.Block;
-import components.RotatableBlock;
+import components.Sprite;
+import components.StaticBlock;
+import components.TextNode;
 import jade.*;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import util.AssetPool;
+import util.Time;
+import util.Utils;
+
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_R;
 
 public class GameScene extends Scene {
     public GameScene() {
         System.out.println("Inside level scene");
     }
 
-
-    public static final byte boardLen = 9; // board pixels in a row or column
+    public static final int boardLen = 9; // board pixels in a row or column
 
     public static final float boardWidth = 500f,
             boardPadding = 50f,
-            pixelWidth = boardWidth / boardLen;
+            pixelWidth = boardWidth / (boardLen - 1);
 
     private Snake snake;
+    public Sprite board;
+    private TextNode fpsDisplay;
 
     @Override
     public void init() {
@@ -27,29 +33,34 @@ public class GameScene extends Scene {
 
         fixedDT = 0.05f;
 
-        AssetPool.addBatchGetterToShader(GameConsts.SNAKE_SH, () -> new SnakeBatch(snake));
+        AssetPool.addBatchGetterToShader(GameConsts.SNAKE_SH, SnakeBatch::new);
 
-        GameObject board = new GameObject("Board", new Transform(new Vector2f(), -10f, new Vector2f(boardWidth + boardPadding * 2, boardWidth + boardPadding * 2)));
-        board.addComponent(new Block(Constants.DEFAULT_SH, new Vector4f(0.5f, 0.1f, 0.1f, 0f)));
-        addGameObjectToScene(board);
+        board = addSpriteObjectToScene(new StaticBlock(Constants.DEFAULT_SH, Utils.hexToRgba("9b111e")).setTransform(
+                new Transform(new Vector2f(), -1, new Vector2f(boardWidth + boardPadding * 2,boardWidth + boardPadding * 2))
+        ));
 
-        snake = new Snake(new Vector4f(0.5f,0.3f,0.6f, 0));
-
-        for (int i = 0; i < boardLen; i++) {
-            for (int j = 0; j < boardLen; j++) {
-                GameObject pixel = new GameObject("Px", board, new Transform(new Vector2f((i + 0.5f) * pixelWidth - boardWidth / 2 , (j + 0.5f) * pixelWidth - boardWidth / 2),
-                        -5f, new Vector2f(pixelWidth, pixelWidth)));
-
-                pixel.addComponent(new Block(Constants.DEFAULT_SH, ((i + j) & 1) == 1 ? GameConsts.GREEN_SHADE : GameConsts.SAND_COLOR));
-                addGameObjectToScene(pixel);
-            }
+        for (int i = 0; i < boardLen * boardLen; i++) {
+            Sprite sprite = addSpriteObjectToScene(new StaticBlock(Constants.DEFAULT_SH, (i & 1) == 1 ? GameConsts.SAND_COLOR : GameConsts.GREEN_SHADE).setTransform(
+                    new Transform(new Vector2f(((i - ((i / boardLen) * boardLen)) * pixelWidth) - (boardWidth / 2), ((i / boardLen) * pixelWidth) - ((float) boardWidth / 2)), -1, new Vector2f(pixelWidth, pixelWidth))
+            ), board);
         }
+
+        snake = new Snake();
+
+        System.out.println("Init");
+        //addSpriteObjectToScene(new StaticBlock(Constants.DEFAULT_SH, AssetPool.getTexture("assets/fonts/arialbd.png")).setTransform(new Transform(new Vector2f(), -1, new Vector2f(1000, 1000))));
+        fpsDisplay =(TextNode) makeText(Constants.ARIAL_FONT, "FPS: 000", 500, -500, 64);
+
+
+
     }
 
     @Override
     public void start() {
         super.start();
         snake.start();
+
+        Time.setInterval(1000, () -> fpsDisplay.changeText("FPS: " + Math.round((1f / Time.dt) * 10000) / 10000));
     }
 
     @Override
@@ -60,13 +71,14 @@ public class GameScene extends Scene {
             camera.position.y -= MouseListener.getDy() / camera.getProjection_h();
         }
 
-        for(GameObject go : gameObjects) {
-            go.update(dt);
-        }
+        if(KeyListener.isKeyPressed(GLFW_KEY_R))
+            removeSprite(board);
 
         snake.update();
 
-        this.renderer.render();
+        System.out.println("update");
+
+        super.update(dt);
 
     }
 }

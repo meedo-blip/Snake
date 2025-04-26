@@ -1,23 +1,25 @@
 package game;
 
-import org.jetbrains.annotations.Range;
 import org.joml.Vector2f;
-import org.joml.Vector2i;
 import org.joml.Vector4f;
 
 public class SnakeJunction extends SnakePart {
 //                                    shape: from 3 to 6
-    private int snakeTick = 0;
-    public final int clockwise;
+    int snakeTick = 0;
+
+    public final float angleStep;
+    public final byte newDirection;
 
     public SnakeJunction(byte newDirection, byte direction, Vector4f color, int shape) {
         this.color = color;
         this.direction = direction;
         this.shape = shape;
+        this.newDirection = newDirection;
 
         init();
 
-        clockwise = isClockWise(newDirection, direction) ? 1 : 0;
+        angleStep = isClockWise(newDirection, direction) ?
+                Snake.ANGLE_STEP : -Snake.ANGLE_STEP;
     }
 
     @Override
@@ -28,13 +30,15 @@ public class SnakeJunction extends SnakePart {
 
     @Override
     public void update(float dt) {
-        if(snakeTick < 25)
-            snakeTick++;
+        snakeTick++;
     }
 
     public int getSnakeTick() { return this.snakeTick; }
 
     private static boolean isClockWise(byte newDirect, byte direct)
-    { return newDirect - direct == 2 || newDirect - direct == -1 || newDirect - direct == -3; // clockwise constants
+    {
+        return newDirect - direct == 2
+                || newDirect - direct == -1
+                || newDirect - direct == -3; // clockwise constants
     }
 }

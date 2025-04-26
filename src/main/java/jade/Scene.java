@@ -1,5 +1,11 @@
 package jade;
 
+import components.FontSprite;
+import components.Sprite;
+import components.StaticBlock;
+import components.TextNode;
+import font.MyFont;
+import org.joml.Vector2f;
 import renderer.Renderer;
 
 import java.util.ArrayList;
@@ -7,48 +13,155 @@ import java.util.List;
 
 public abstract class Scene {
 
-    protected Renderer renderer = new Renderer();
+    protected final Renderer renderer = new Renderer();
 	protected Camera camera;
-    public float fixedDT = 0f;
+    public float fixedDT = 0f; // in seconds
+    private int spriteId = 0;
     private boolean isRunning = false;
-    protected final List<GameObject> gameObjects = new ArrayList<>();
-	
+    protected final List<Sprite> gameSprites = new ArrayList<>();
+    protected final List<Integer> gameParents = new ArrayList<>();
     public Scene() {}
 
+    public void init() {}
+
     public void start() {
-        for(GameObject go : gameObjects) {
-            go.start();
-            this.renderer.add(go);
+
+        for(int i = 0; i < gameSprites.size(); i++) {
+            Sprite spr = gameSprites.get(i);
+            spr.start();
+            this.renderer.add(spr);
         }
         isRunning = true;
     }
 
-    public void init() {}
+    public Sprite addSpriteObjectToScene(Sprite spr) {
+        spr.id = spriteId++;
+        gameSprites.add(spr);
 
-    public void addGameObjectToScene(GameObject go) {
-        if(!isRunning) {
-            gameObjects.add(go);
-        } else {
-            gameObjects.add(go);
-            go.start();
-            this.renderer.add(go);
+        if(isRunning) {
+            spr.start();
+            this.renderer.add(spr);
         }
+
+        return spr;
     }
 
-    public GameObject getGO(String name) {
-        for (GameObject go : gameObjects)
-            if(go.getName().equals(name))
-                return go;
+
+    public Sprite addSpriteObjectToScene(Sprite spr, Sprite parent) {
+        if(parent == null)
+            return addSpriteObjectToScene(spr);
+
+        spr.id = spriteId++;
+        spr.pForm = parent.transform;
+        gameSprites.add(spr);
+        addSpriteToParent(spr, parent);
+
+        if(isRunning) {
+            spr.start();
+            this.renderer.add(spr);
+        }
+
+        return spr;
+    }
+
+    public Sprite makeText(MyFont font, String text, int x, int y, int fontsize) {
+        return makeText(font, text, x, y, fontsize, null);
+
+    }
+
+    public TextNode makeText(MyFont font, String text, int x, int y, int fontsize, Sprite grandParent) {
+
+        int width = text.length();
+        int height = Math.ceilDiv(text.length(), width);
+
+        float halfW = ((float) width) / 2;
+
+        return (TextNode) addSpriteObjectToScene(new TextNode(font, text, fontsize, new Transform(new Vector2f(x,y), -1, new Vector2f(fontsize * width, fontsize * height))), grandParent);
+    }
+
+    public Sprite getSprite(String name) {
+        for (Sprite spr : gameSprites)
+            if(spr.getName().equals(name))
+                return spr;
 
         return null;
     }
 
-    public void removeGO(GameObject go) {
-        gameObjects.remove(go);
-        renderer.remove(go);
+    public void removeSprite(Sprite spr) {
+        if(spr == null) return;
+        int loc2 = gameParents.indexOf(-spr.id);
+        if (loc2++ != -1) {
+            while (loc2 < gameParents.size()) {
+                if (!(gameParents.get(loc2) < 0)) {
+                    removeSprite(getSpriteById(gameParents.remove(loc2)));
+                }
+            }
+            gameParents.remove(loc2 - 1);
+        }
+
+        gameSprites.remove(spr);
+        renderer.remove(spr);
     }
 
-    public abstract void update(float dt);
+    public void update(float dt) {
+        for(int i = 0; i < gameSprites.size(); i++)
+            gameSprites.get(i).update(dt);
+
+        renderer.render();
+    }
 
     public Camera camera() { return this.camera; }
+
+    public Sprite getSpriteById(int id){
+        int half = gameSprites.size() >> 1;
+        int i = half;
+        for (; i >= 0; i--) {
+            if(gameSprites.get(i).id == id)
+                return gameSprites.get(i);
+        }
+        for (i = half + 1; i < gameSprites.size(); i++) {
+            if(gameSprites.get(i).id == id)
+                return gameSprites.get(i);
+        }
+        return null;
+    }
+
+    public Sprite getParentOf(Sprite sprite) {
+        int loc = gameParents.indexOf(sprite.id);
+        for (int i = loc - 1; i >= 0; i--) {
+            if(gameParents.get(i) < 0) {
+                // turn back to positive
+                return getSpriteById(-gameParents.get(i));
+            }
+        }
+        return null;
+    }
+
+    private void addSpriteToParent(Sprite spr, Sprite parent) {
+        int loc2 = gameParents.indexOf(-parent.id);
+        if(!gameSprites.contains(parent)) {
+            gameParents.add(-addSpriteObjectToScene(parent).id);
+            loc2 = gameParents.size();
+        } else if (loc2 == -1) {
+            gameParents.add(-parent.id);
+            loc2 = gameParents.size();
+        } else {
+            loc2++;
+        }
+        gameParents.add(loc2, spr.id);
+    }
+
+    public void removeChildrenOf(Sprite parent) {
+        int loc = gameParents.indexOf(-parent.id);
+
+        if(loc != -1) {
+            gameParents.remove(loc);
+            while(gameParents.get(loc) >= 0){
+                removeSprite(getSpriteById(gameParents.remove(loc)));
+
+                if(gameParents.size() - 1 == loc)
+                    break;
+            }
+        }
+    }
 }

@@ -1,15 +1,19 @@
 package game;
 
+import components.QuadSprite;
+import components.Sprite;
 import jade.Transform;
+import jade.Window;
 import org.joml.Vector4f;
+import renderer.QuadBatch;
 import renderer.RenderBatch;
-import util.Utils;
 
+import static org.lwjgl.opengl.ARBVertexArrayObject.glBindVertexArray;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 
-public class SnakeBatch extends RenderBatch {
+public class SnakeBatch extends QuadBatch {
 
     private static final int
             POS_SIZE = 3,
@@ -25,13 +29,8 @@ public class SnakeBatch extends RenderBatch {
             VERTEX_SIZE = 9,
             VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
 
-    private final Snake snake;
-
-    public SnakeBatch(Snake snake) {
-        this.shader = GameConsts.SNAKE_SH;
-        this.snake = snake;
-
-        vertexSize = VERTEX_SIZE;
+    public SnakeBatch() {
+        super(GameConsts.SNAKE_SH, 9);
     }
 
     @Override
@@ -56,16 +55,16 @@ public class SnakeBatch extends RenderBatch {
 
         Vector4f color = sprite.getColor();
 
-        Transform transform = sprite.gameObject.transform;
+        Transform transform = sprite.transform;
 
         // texID is the tex position in textures
         // 0 means no texture
-        float z_id = sprite.getTexId() + ((sprite.getShape() & 7) << 4);
+        float z_id = textures.indexOf(sprite.getTexId()) + 1 + ((sprite.getShape() & 7) << 4);
 
         float halfX = transform.scale.x / 2;
         float halfY = transform.scale.y / 2;
 
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
 
             // Top right     0
             // Top left      1
@@ -87,7 +86,7 @@ public class SnakeBatch extends RenderBatch {
             vertices[offset + 7] = color.z;
 
             // Load texture id
-            vertices[offset + 8] = sprite.gameObject.transform.rotate;
+            vertices[offset + 8] = sprite.orbit;
 
             offset += VERTEX_SIZE;
         }
@@ -112,8 +111,5 @@ public class SnakeBatch extends RenderBatch {
     @Override
     protected void uploadUniforms() {
         shader.uploadFloat("uPixel", GameScene.pixelWidth);
-
-        shader.uploadVec2f("uHead", snake.snakeHead.uEnd);
-        shader.uploadVec2f("uBack", snake.snakeBack.uEnd);
     }
 }

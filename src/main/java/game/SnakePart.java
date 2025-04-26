@@ -1,11 +1,13 @@
 package game;
 
-import components.SpriteRenderer;
+import components.QuadSprite;
+import jade.Transform;
 
-public abstract class SnakePart extends SpriteRenderer{
+public abstract class SnakePart extends QuadSprite {
     protected int shape;
     protected byte direction = GameConsts.RIGHT;
-    protected Snake snake;
+
+    float orbit;
 
     protected void init() {
         shader = GameConsts.SNAKE_SH;
@@ -13,8 +15,8 @@ public abstract class SnakePart extends SpriteRenderer{
 
     @Override
     public void start() {
-        System.out.println(gameObject.getName());
-        transform = gameObject.transform;
+        super.start();
+        System.out.println(getName());
     }
 
     public int getShape() {

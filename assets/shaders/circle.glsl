@@ -13,7 +13,6 @@ out float fTexId;
 
 uniform mat4 uView;
 uniform mat4 uProjection;
-uniform mat3 uRotation;
 
 void main() {
     // element vertex id: gl_VertexID
@@ -29,7 +28,7 @@ void main() {
                             : vert == 1 ? vec2(-aScale.x, aScale.y)
                             : aScale , 0.0);
 
-    fColor = vec4(aColor, 0);
+    fColor = vec4(aColor,0f);
     fTexCoords = aTexCoords;
     fTexId = aTexId;
 
@@ -49,6 +48,9 @@ uniform sampler2D uTextures[8];
 out vec4 color;
 
 void main() {
+    if((fTexCoords.x * fTexCoords.x) + (fTexCoords.y * fTexCoords.y) > 0.25f)
+        discard;
+
     if (fTexId > 0) {
         color = fColor * texture(uTextures[int(fTexId)], fTexCoords);
     } else {

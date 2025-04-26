@@ -43,10 +43,10 @@ void main() {
 
     fCoords = vec2(round(aCenter.x), round(aCenter.y));
 
-    if(aRotate != 0) {
+    if((attribs & 112) == 0) {
         float c = cos(aRotate), s = sin(aRotate);
-        gl_Position = uView * uProjection * vec4((pos.x * c) - (pos.y * s) + center.x,
-        (s * pos.x) + (c * pos.y) + center.y, -1, 1.0);
+        gl_Position = uView * uProjection * vec4(((pos.x * c) - (pos.y * s)) + center.x,
+        ((s * pos.x) + (c * pos.y)) + center.y, -1, 1.0);
     } else {
         gl_Position = uView * uProjection * vec4(pos + center, -1, 1.0f);
     }
@@ -79,43 +79,47 @@ out vec4 color;
 void main() {
     int shape = int(fAttribs) - 3;
 
-    if(shape == -3)
-        if(pow(fTexCoords.x, 2) + pow(fTexCoords.y - 0.5f, 2) > 0.25f)
-            discard;
+    if (shape == -3)
+    if (pow(fTexCoords.x, 2) + pow(fTexCoords.y - 0.5f, 2) > 0.25)
+    discard;
 
-    else if(shape == -2) {
+    else if (shape == -2) {
         if (pow(fTexCoords.x - 0.5f, 2) + pow(fTexCoords.y - 0.5f, 2) > 0.25f) {
             discard;
         }
     }
 
-    if(shape >= 0) {
+    if (shape >= 0) {
         float ox = (shape & 1)  ^ ((shape & 1) ^ ((shape & 2) >> 1)),
         oy = ((shape & 2) >> 1) ^ ((shape & 1) ^ ((shape & 2) >> 1));
 
         float dist = pow(fTexCoords.x - ox, 2) + pow(fTexCoords.y - oy, 2);
 
-        if(dist < 0.125f || dist > 0.5625f) {
+        if (dist < 0.0675f || dist > 0.5625f) {
             discard;
         }
 
-        float m = ((oy - (uHead.y - floor(uHead.y)) / (ox - (uHead.x - floor(uHead.x)))));
-        float c = (oy - (m * (ox)));
+        // float m = ((oy - (uHead.y - floor(uHead.y)) / (ox - (uHead.x - floor(uHead.x)))));
+        // float c = (oy - (m * (ox)));
 
-        if(round(uHead.x) == fCoords.x && round(uHead.y) == fCoords.y) {
-            if (fTexCoords.y > (m * fTexCoords.x) + c)
-                discard;
-        }
-        else if(uBack.x == fCoords.x && uBack.y == fCoords.y) {
-            if (fTexCoords.y * (ox - uBack.x) < (oy - uBack.y) * fTexCoords.x)
-                discard;
-        }
-
+        // if(round(uHead.x) == fCoords.x && round(uHead.y) == fCoords.y) {
+        //      if (fTexCoords.y > (m * fTexCoords.x) + c)
+        //         discard;
+        //  }
+        // else if(uBack.x == fCoords.x && uBack.y == fCoords.y) {
+        //if (fTexCoords.y * (ox - uBack.x) < (oy - uBack.y) * fTexCoords.x)
+        //  discard;
     }
+
 
     if (fTexId > 0) {
         color = vec4(fColor.xyz, 1f) * texture(uTextures[int(fTexId)], fTexCoords);
     } else {
         color = vec4(fColor.xyz, 1f);
+    }
+
+    if(fTexCoords.x <= 0.05f || fTexCoords.y <= 0.05f
+    || fTexCoords.x >= 0.95f || fTexCoords.y >= 0.95f) {
+        color = vec4(1,1,1,1);
     }
 }

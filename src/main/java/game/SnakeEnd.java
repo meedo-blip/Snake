@@ -1,23 +1,27 @@
 package game;
 
-import org.joml.Vector2f;
+import jade.Transform;
 import org.joml.Vector4f;
-import org.joml.Vector4i;
 
 import static util.Utils.DEGREES_TO_RADIANS;
 
 public class SnakeEnd extends SnakePart {
 
     public SnakeJunction rotating = null;
-    public Vector2f uEnd;
 
-    private static float m;
+    // offset x amd y for rotation
+    float ox, oy;
 
     public SnakeEnd(Vector4f color) {
         this.color = color;
-        this.uEnd = new Vector2f(0,0);
         shape = 0;
         init();
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        orbit = transform.rotate;
     }
 
     @Override
@@ -28,24 +32,19 @@ public class SnakeEnd extends SnakePart {
         } else {
             rotate();
         }
-
-        uEnd.x = transform.position.x();
-        uEnd.y = transform.position.y();
     }
 
 
     public void rotate() {
-        transform.rotate += ((rotating.clockwise << 1) - 1) * Snake.ANGLE_STEP * DEGREES_TO_RADIANS;
+        transform.rotate += rotating.angleStep;
+        orbit += rotating.angleStep;
 
         float sin = (float) Math.sin(transform.rotate);
         float cos = (float) Math.cos(transform.rotate);
 
-        float x = transform.position.x - transform.centerR.x;
-        float y = transform.position.y - transform.centerR.y;
+        transform.position.x = ((ox * cos) - (oy * sin)) + transform.centerR.x();
 
-        transform.position.x = (x * cos) - (y * sin) + transform.centerR.x();
-
-        transform.position.y = (sin * x) + (cos * y) + transform.centerR.y();
+        transform.position.y = ((sin * ox) + (cos * oy)) + transform.centerR.y();
     }
 
     // decimal of x and of y

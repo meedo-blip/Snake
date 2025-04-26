@@ -3,6 +3,7 @@ package game;
 import jade.*;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
+import util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,24 +14,25 @@ public class Snake {
     public Vector4f color;
     public static final float
             STEP =  1f / 25, // step per pixel width
-            ANGLE_STEP = 90f / 25,
-            SNAKE_WIDTH = 0.8f;
+            ANGLE_STEP = (90f / 25f) * Utils.DEGREES_TO_RADIANS,
+            SNAKE_WIDTH = 0.5f;
 
     public byte newDirection = GameConsts.RIGHT;
 
-    SnakeEnd snakeHead;
-    SnakeEnd snakeBack;
+    public SnakeEnd snakeHead;
+    public SnakeEnd snakeBack;
+
     private float lastHeadX = 0f, lastHeadY = 0f;
 
-    private Scene scene;
+    private List<SnakeBlock> snakeBlocks;
+    private List<SnakeJunction> junctions;
 
-    private final List<SnakeBlock> snakeBlocks = new ArrayList<>(3);
-    private final List<SnakeJunction> junctions = new ArrayList<>(1);
     private Vector2f headPos, backPos;
     private SnakePart point;
 
     public Snake() {
         color = new Vector4f(0.5f, 1f, 0.5f, 1f);
+        init();
     }
 
     public Snake(Vector4f color) {
@@ -38,35 +40,30 @@ public class Snake {
         init();
     }
 
-    public void init() {
+    private void init() {
+        snakeBlocks = new ArrayList<>();
+        junctions = new ArrayList<>();
 
-        scene = Window.getScene();
+        this.snakeHead = (SnakeEnd) genSnakePart("head", 0,
 
-        this.snakeHead = (SnakeEnd) genSnakePart(0,
+                -2, 0, SNAKE_WIDTH, 0.8f,
 
-                -2, 0, 0.5f, SNAKE_WIDTH,
+                GameConsts.RIGHT, 90f * Utils.DEGREES_TO_RADIANS);
 
-                GameConsts.RIGHT, 0f);
+        this.snakeBack = (SnakeEnd) genSnakePart("back", 0,
 
+                -4, 0, SNAKE_WIDTH, 0.8f,
 
-        this.snakeBack = (SnakeEnd) genSnakePart(0,
+                GameConsts.RIGHT, 270f * Utils.DEGREES_TO_RADIANS);
 
-                -4, 0, 0.5f, SNAKE_WIDTH,
-
-                GameConsts.RIGHT, 180f);
+        genSnakePart("block", 2, -3, 0,
+                1f, SNAKE_WIDTH, GameConsts.RIGHT,
+                0);
     }
 
     public void start() {
         headPos = snakeHead.transform.position;
         backPos = snakeBack.transform.position;
-    }
-
-    public Vector2f headPos() {
-        return headPos;
-    }
-
-    public Vector2f backPos() {
-        return backPos;
     }
 
     public void update() {
@@ -81,76 +78,122 @@ public class Snake {
             newDirection = GameConsts.UP;
 
 
-            if (Math.round(headPos.x()) != lastHeadX || Math.round(headPos.y()) != lastHeadY) {
-                if (snakeHead.rotating != null) {
-                    if (snakeHead.rotating.getSnakeTick() == 25) {
-                        snakeHead.rotating = null;
-                        scene.removeGO(point.gameObject);
-                    }
-                }
-                if ((newDirection & 2) != (snakeHead.direction & 2) && snakeHead.rotating == null) {
+        if (snakeHead.rotating != null) {
+            if (snakeHead.rotating.getSnakeTick() >= 25) {
+                snakeHead.rotating = null;
 
-                    // find shape of junction curve
-                    int shape = ((newDirection & 1) << (((newDirection & 2) >> 1) ^ 1))
-                            | ((snakeHead.direction & 1) << (((snakeHead.direction & 2) >> 1) ^ 1));
+                genSnakePart("block",2, headPos.x(),
+                        headPos.y(), SNAKE_WIDTH, SNAKE_WIDTH,
+                        snakeHead.direction, 0);
+            }
+        }
 
-                    shape = (newDirection & 2) == 2 ? shape ^ 2 : shape ^ 1;
+        if (snakeBack.rotating != null) {
+            if (snakeBack.rotating.getSnakeTick() == 25) {
+                snakeBack.rotating = null;
+                Window.getScene().removeSprite(junctions.removeFirst());
 
-                    System.out.println(shape);
-
-                    SnakeJunction junction = (SnakeJunction) genSnakePart(
-                            shape + 3,
-                            Math.round(snakeHead.transform.position.x),
-                            Math.round(snakeHead.transform.position.y),
-                            1, 1, snakeHead.direction, 0
-                    );
+                snakeBlocks.getFirst().backPart = snakeBack;
+            }
+        }
 
 
-                    junction.transform.centerR.x =
-                            snakeHead.transform.centerR.x = Math.round(headPos.x()) - 0.5f + (shape & 1);
-                    junction.transform.centerR.y =
-                            snakeHead.transform.centerR.y = Math.round(headPos.y()) + 0.5f - ((shape & 2) >> 1);
+        if (Math.round(headPos.x()) != lastHeadX || Math.round(headPos.y()) != lastHeadY) {
 
-                    snakeHead.direction = newDirection;
+            if(headPos.x() > GameScene.boardLen / 2f || headPos.x() < -GameScene.boardLen / 2f
+            || headPos.y() > GameScene.boardLen / 2f || headPos.y() < -GameScene.boardLen / 2f)
+                Window.changeScene(new GameScene());
 
-                    snakeHead.rotating = junction;
+            if ((newDirection & 2) != (snakeHead.direction & 2) && snakeHead.rotating == null) {
 
-                    point = genSnakePart(1, junction.transform.centerR.x(), junction.transform.centerR.y(), 0.3f,0.3f, GameConsts.RIGHT,0);
+                // find shape of junction curve
+                int shape = ((newDirection & 1) << (((newDirection & 2) >> 1) ^ 1))
+                        | ((snakeHead.direction & 1) << (((newDirection & 2) >> 1)));
+
+                shape = (newDirection & 2) == 2 ? shape ^ 2 : shape ^ 1;
+
+                System.out.println(shape);
+
+                SnakeJunction junction = (SnakeJunction) genSnakePart(
+                        "junction",
+                        shape + 3,
+                        Math.round(snakeHead.transform.position.x),
+                        Math.round(snakeHead.transform.position.y),
+                        1, 1, snakeHead.direction, 0
+                );
+
+
+                junction.transform.centerR.x =
+                        snakeHead.transform.centerR.x = Math.round(headPos.x()) - 0.5f + (shape & 1);
+                junction.transform.centerR.y =
+                        snakeHead.transform.centerR.y = Math.round(headPos.y()) + 0.5f - ((shape & 2) >> 1);
+
+                snakeHead.transform.rotate = 0;
+
+                snakeHead.ox = headPos.x() - snakeHead.transform.centerR.x();
+                snakeHead.oy = headPos.y() - snakeHead.transform.centerR.y();
+
+                snakeHead.direction = newDirection;
+
+                snakeHead.rotating = junction;
+
+                snakeBlocks.getLast().frontPart = junction;
+            }
+
+            if(snakeBack.rotating == null && !junctions.isEmpty()) {
+                if(Math.round(backPos.x()) == junctions.getFirst().transform.position.x
+                        && Math.round(backPos.y()) == junctions.getFirst().transform.position.y)
+                {
+                    snakeBack.rotating = junctions.getFirst();
+                    snakeBack.rotating.snakeTick = 0;
+                    snakeBack.transform.rotate = 0;
+
+                    snakeBack.transform.centerR = snakeBack.rotating.transform.centerR;
+
+                    Window.getScene().removeSprite(snakeBlocks.removeFirst());
+
+                    snakeBack.ox = backPos.x() - snakeBack.transform.centerR.x();
+                    snakeBack.oy = backPos.y() - snakeBack.transform.centerR.y();
+
+                    snakeBack.direction = snakeBack.rotating.newDirection;
+
                 }
             }
+        }
 
 
         lastHeadX = Math.round(headPos.x());
         lastHeadY = Math.round(headPos.y());
     }
 
-    private SnakePart genSnakePart(int shape, float x,
+    private SnakePart genSnakePart(String name, int shape, float x,
                                    float y, float a,
                                    float b, byte direction,
                                    float rotate)
     {
-
-        GameObject go = new GameObject("part",
-                new Transform(
-                        new Vector2f(x, y),
-                        1, new Vector2f(a * GameScene.pixelWidth, b * GameScene.pixelWidth),
-                        new Vector2f(), rotate));
+        Transform transform = new Transform(
+                new Vector2f(x, y),
+                1, new Vector2f(a * GameScene.pixelWidth, b * GameScene.pixelWidth),
+                new Vector2f(), rotate);
 
         if(shape == 0) {
-            if(rotate == 0) {
-                snakeHead = new SnakeEnd(color);
-                scene.addGameObjectToScene(go.addComponent(snakeHead));
-                return snakeHead;
-            } else {
-                snakeBack = new SnakeEnd(color);
-                scene.addGameObjectToScene(go.addComponent(snakeBack));
-                return snakeBack;
-            }
+            SnakeEnd end = new SnakeEnd(color);
+            end.name = name;
+
+            Window.getScene()
+                    .addSpriteObjectToScene(end.setTransform(transform));
+
+            return end;
         }
         else if(shape < 3) {
-            SnakeBlock snakeBlock = new SnakeBlock(this, color, direction);
+            SnakeBlock snakeBlock = new SnakeBlock(color, direction,
+                    snakeHead,
+                    junctions.isEmpty() ? snakeBack : junctions.getLast());
 
-            scene.addGameObjectToScene(go.addComponent(snakeBlock));
+            snakeBlock.name = name;
+
+            Window.getScene()
+                    .addSpriteObjectToScene(snakeBlock.setTransform(transform));
 
             snakeBlocks.add(snakeBlock);
 
@@ -159,7 +202,10 @@ public class Snake {
         } else {
             SnakeJunction junction = new SnakeJunction(newDirection, direction, color, shape);
 
-            scene.addGameObjectToScene(go.addComponent(junction));
+            junction.name = name;
+
+            Window.getScene()
+                    .addSpriteObjectToScene(junction.setTransform(transform));
 
             junctions.add(junction);
 

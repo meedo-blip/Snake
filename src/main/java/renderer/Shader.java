@@ -224,7 +224,7 @@ public class Shader {
         glUniform1fv(varLocation, arr);
     }
 
-    public String getPath() {
-        return filepath;
+    public Integer getId() {
+        return shaderProgramID;
     }
 }

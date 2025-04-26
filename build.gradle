@@ -20,8 +20,11 @@ dependencies {
     // Annotations
     compileOnly 'org.jetbrains:annotations:26.0.2'
 
-    // GSON
-    implementation 'com.google.code.gson:gson:2.8.9'
+    // Custom libs like freetype
+    implementation fileTree('libs') {include '*.jar' }
+
+    // Json handling by jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4.2'
 
     // ImGUI stuff
     implementation "io.github.spair:imgui-java-app:$imguiVersion"
@@ -65,11 +68,6 @@ task copyAssets(type: Copy) {
     copy {
         from "assets"
         into "${buildDir}/libs/assets"
-    }
-
-    copy {
-        from "level.txt"
-        into "${buildDir}/libs"
     }
 }
 

@@ -3,6 +3,7 @@ package jade;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
+import util.Time;
 
 import java.nio.IntBuffer;
 
@@ -11,10 +12,10 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.GL_MAX_TEXTURE_IMAGE_UNITS;
 import static org.lwjgl.system.MemoryUtil.*;
+import static util.Time.dt;
 
 public class Window {
 
-    private int width, height;
     private String title;
 
     // Location of window in the memory
@@ -22,16 +23,14 @@ public class Window {
 
     private static Window window = null;
 
-    public int window_w = 2560, window_h = 1369;
+    public int window_w = 1920, window_h = 1080;
 
+    private static IntBuffer bufferW, bufferH;
     private static Scene currentScene;
 
-    public static float time = 0, lastTime = 0;
-
     private Window() {
-        this.width = 2560;
-        this.height = 1440;
-        this.title = "Snake";
+        bufferH = BufferUtils.createIntBuffer(1);
+        bufferW = BufferUtils.createIntBuffer(1);
     }
 
     public static void changeScene(Scene newScene) {
@@ -40,9 +39,10 @@ public class Window {
         currentScene.start();
     }
 
-    public static Window get() {
+    public static Window get(String title) {
         if (Window.window == null) {
             Window.window = new Window();
+            Window.window.title = title;
         }
 
         return Window.window;
@@ -50,6 +50,14 @@ public class Window {
 
     public static Scene getScene() {
         return currentScene;
+    }
+
+    public static int getWidth() {
+        return bufferW.get(0);
+    }
+
+    public static int getHeight() {
+        return bufferH.get(0);
     }
 
     public void run(Scene scene) {
@@ -84,7 +92,7 @@ public class Window {
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE); // set fullscreen to true
 
         // Create the window
-        glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
+        glfwWindow = glfwCreateWindow(this.window_w, this.window_h, this.title, NULL, NULL);
 
         if (glfwWindow == NULL) {
             throw new IllegalStateException("Failed to create the GLFW window");
@@ -110,50 +118,42 @@ public class Window {
         int[] texture_units = new int[1];
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, texture_units);
 
+        // Get window size through mutable buffer
+        glfwGetWindowSize(window.glfwWindow, bufferW, bufferH);
 
         System.out.println("Your Gpu supports upto " + texture_units[0] + " textures per batch.");
     }
 
 	public void loop() {
-    	boolean usingWindows = System.getProperty("os.name").contains("Windows");
-    	
+
         float startTime = (float) glfwGetTime();
         float endTime;
-        float dt = 0.0f;
+        dt = 0.0f;
 
-        IntBuffer bufferW = BufferUtils.createIntBuffer(1);
-        IntBuffer bufferH = BufferUtils.createIntBuffer(1);
-
+        // Set clear color
+        glClearColor(0f, 0f, 0f, 1.0f);
 
         while (!glfwWindowShouldClose(glfwWindow)) {
             // Poll events
             glfwPollEvents();
 
-            // Set screen color
-            glClearColor(0f, 0f, 0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
-
-            glfwGetWindowSize(glfwWindow, bufferW, bufferH);
-
-            window_w = bufferW.get(0);
-            window_h = bufferH.get(0);
 
             currentScene.update(dt);
 
             glfwSwapBuffers(glfwWindow);
 
-            lastTime = startTime;
+            endTime = (float) glfwGetTime();
+            dt = endTime - startTime;
 
-            if(currentScene.fixedDT > 0f) {
+            if(currentScene.fixedDT > dt) {
                 try {
-                    Thread.sleep((long) (Math.max(currentScene.fixedDT - glfwGetTime() + startTime, 0f) * 1000));
+                    Thread.sleep((long) ((currentScene.fixedDT - dt) * 1000));
                 } catch (InterruptedException ignored) {
                 }
             }
 
-            endTime = (float) glfwGetTime();
-            dt = endTime - startTime;
-            startTime = endTime;
+            startTime = (float) glfwGetTime();
         }
     }
 }
