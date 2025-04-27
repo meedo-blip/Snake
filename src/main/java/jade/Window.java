@@ -2,6 +2,10 @@ package jade;
 
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
+import org.lwjgl.openal.AL;
+import org.lwjgl.openal.ALC;
+import org.lwjgl.openal.ALCCapabilities;
+import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.opengl.*;
 import util.Time;
 
@@ -9,6 +13,7 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.GL_MAX_TEXTURE_IMAGE_UNITS;
 import static org.lwjgl.system.MemoryUtil.*;
@@ -27,6 +32,8 @@ public class Window {
 
     private static IntBuffer bufferW, bufferH;
     private static Scene currentScene;
+    private long audioDevice;
+    private long audioContext;
 
     private Window() {
         bufferH = BufferUtils.createIntBuffer(1);
@@ -71,6 +78,10 @@ public class Window {
         glfwFreeCallbacks(glfwWindow);
         glfwDestroyWindow(glfwWindow);
 
+        // Destroy the audio context
+        alcDestroyContext(audioContext);
+        alcCloseDevice(audioDevice);
+
         // Terminate glfw and free the error callback
         glfwTerminate();
         glfwSetErrorCallback(null).free();
@@ -114,6 +125,22 @@ public class Window {
 
         // This line is critical for LWJGL's interoperation with GLFW
         GL.createCapabilities();
+
+        // Initialize audio device
+        // Initialize the audio device
+        String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
+        audioDevice = alcOpenDevice(defaultDeviceName);
+
+        int[] attributes = {0};
+        audioContext = alcCreateContext(audioDevice, attributes);
+        alcMakeContextCurrent(audioContext);
+
+        ALCCapabilities alcCapabilities = ALC.createCapabilities(audioDevice);
+        ALCapabilities alCapabilities = AL.createCapabilities(alcCapabilities);
+
+        if (!alCapabilities.OpenAL10) {
+            assert false : "Audio library not supported.";
+        }
 
         int[] texture_units = new int[1];
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, texture_units);

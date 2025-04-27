@@ -1,9 +1,13 @@
 package util;
 
+import com.sun.tools.javac.Main;
 import jade.Transform;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -171,4 +175,23 @@ public class Utils {
 		if(ax3 >= bx1 && ax3 <= bx2 && ay3 <= by1 && ay3 >= by2) return true;
         return ax4 >= bx1 && ax4 <= bx2 && ay4 <= by1 && ay4 >= by2;
     }
+
+	public static synchronized void playSound(final String url) {
+		new Thread(new Runnable() {
+			// The wrapper thread is unnecessary, unless it blocks on the
+			// Clip finishing; see comments.
+			public void run() {
+				try {
+					Clip clip = AudioSystem.getClip();
+					AudioInputStream inputStream = AudioSystem.getAudioInputStream(
+							Main.class.getResourceAsStream(url));
+					clip.open(inputStream);
+					clip.start();
+				} catch (Exception e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}).start();
+	}
 }
+

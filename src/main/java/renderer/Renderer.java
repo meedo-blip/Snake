@@ -36,7 +36,7 @@ public class Renderer {
         if ((spr != null))
             for (RenderBatch batch : batches)
                 if (batch.removeSprite(spr))
-                    System.out.println("removed " + spr.name);
+                    return;
     }
 
     private void add(QuadSprite spr) {

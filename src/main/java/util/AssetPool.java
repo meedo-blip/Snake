@@ -1,5 +1,6 @@
 package util;
 
+import jade.Sound;
 import renderer.*;
 
 import java.io.File;
@@ -9,6 +10,8 @@ import java.util.Map;
 public class AssetPool {
     private static final Map<String, Shader> shaders = new HashMap<>();
     private static final Map<String, Integer> textures = new HashMap<>();
+    private static final Map<String, Sound> sounds = new HashMap<>();
+
 
     private static final Map<Integer, BatchGen> shaderToBatch = new HashMap<>();
 
@@ -37,6 +40,17 @@ public class AssetPool {
     }
 
 
+    public static Sound getSound(String resourceName, boolean loop) {
+        File file = new File(resourceName);
+        if (sounds.containsKey(file.getAbsolutePath())) {
+            return sounds.get(file.getAbsolutePath());
+        } else {
+            Sound sound = new Sound(resourceName, loop);
+            sounds.put(file.getAbsolutePath(), sound);
+            return sound;
+        }
+    }
+
     public static RenderBatch getBatchOf(Shader shader) {
         return shaderToBatch.getOrDefault(shader.getId(), (BatchGen) () -> new DefaultBatch(shader)).genBatch();
     }
@@ -44,4 +58,6 @@ public class AssetPool {
     public static void addBatchGetterToShader(Shader shader, BatchGen batchGetter) {
         shaderToBatch.put(shader.getId(), batchGetter);
     }
+
+
 }

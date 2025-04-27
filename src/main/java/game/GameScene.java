@@ -10,6 +10,8 @@ import org.joml.Vector4f;
 import util.AssetPool;
 import util.Utils;
 
+import java.io.File;
+
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_R;
 
 public class GameScene extends Scene {
@@ -111,7 +113,9 @@ public class GameScene extends Scene {
     void eatApple() {
         removeSprite(apple);
         score++;
+
         scoreDisplay.changeText("Score: " + score);
+        GameConsts.FOOD_CRUNCH_SN.play();
 
         makeApple();
     }
