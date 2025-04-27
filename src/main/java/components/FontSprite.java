@@ -1,6 +1,5 @@
 package components;
 
-import font.MyFont;
 import jade.Constants;
 import jade.Transform;
 
@@ -14,12 +13,13 @@ public class FontSprite extends QuadSprite {
         this.texCoords = texCoords;
     }
 
-    public void start(){
-        transform.position.add(pForm.position);
+    public void start() {
+        super.start();
     }
 
     @Override
     public void update(float dt) {
-        changed = false;
+        transform.position.x = pForm.position.x + offsetForm.position.x;
+        transform.position.y = pForm.position.y + offsetForm.position.y;
     }
 }

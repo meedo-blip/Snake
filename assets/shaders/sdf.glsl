@@ -51,7 +51,11 @@ out vec4 color;
 void main() {
     float c = texture(uTextures[int(fTexId)], fTexCoords).g;
 
-    if (c>=0.5f) {
+    if (c>0.5f) {
         color =  vec4(fColor.xyz, 1);
     }
+    else if(c <= 0.5f && c > 0.45f)
+        color = vec4(fColor.xyz * 0.5f,1);
+    else
+        discard;
 }

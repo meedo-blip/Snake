@@ -22,13 +22,15 @@ public class Snake {
     public SnakeEnd snakeHead;
     public SnakeEnd snakeBack;
 
+    private GameScene gameScene;
+
     private float lastHeadX = 0f, lastHeadY = 0f;
 
     private List<SnakeBlock> snakeBlocks;
     private List<SnakeJunction> junctions;
 
     private Vector2f headPos, backPos;
-    private SnakePart point;
+    private GameSprite point;
 
     public Snake() {
         color = new Vector4f(0.5f, 1f, 0.5f, 1f);
@@ -43,6 +45,7 @@ public class Snake {
     private void init() {
         snakeBlocks = new ArrayList<>();
         junctions = new ArrayList<>();
+        gameScene = (GameScene) Window.getScene();
 
         this.snakeHead = (SnakeEnd) genSnakePart("head", 0,
 
@@ -61,9 +64,16 @@ public class Snake {
                 0);
     }
 
+
+
     public void start() {
         headPos = snakeHead.transform.position;
         backPos = snakeBack.transform.position;
+
+        gameScene.makeApple();
+
+        Window.getScene().makeText(Constants.ARIAL_FONT, "head", 0, 0, 12, snakeHead);
+
     }
 
     public void update() {
@@ -95,6 +105,10 @@ public class Snake {
 
                 snakeBlocks.getFirst().backPart = snakeBack;
             }
+        }
+
+        if(GameUtil.checkCollision(gameScene.apple, snakeHead)) {
+            gameScene.eatApple();
         }
 
 
@@ -156,7 +170,6 @@ public class Snake {
                     snakeBack.oy = backPos.y() - snakeBack.transform.centerR.y();
 
                     snakeBack.direction = snakeBack.rotating.newDirection;
-
                 }
             }
         }
@@ -166,10 +179,10 @@ public class Snake {
         lastHeadY = Math.round(headPos.y());
     }
 
-    private SnakePart genSnakePart(String name, int shape, float x,
-                                   float y, float a,
-                                   float b, byte direction,
-                                   float rotate)
+    private GameSprite genSnakePart(String name, int shape, float x,
+                                    float y, float a,
+                                    float b, byte direction,
+                                    float rotate)
     {
         Transform transform = new Transform(
                 new Vector2f(x, y),

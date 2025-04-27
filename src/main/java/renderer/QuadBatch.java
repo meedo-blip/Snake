@@ -18,7 +18,6 @@ public abstract class QuadBatch extends RenderBatch {
     protected List<Integer> textures;
     protected int[] texSlots = {0, 1, 2, 3, 4, 5, 6, 7};
 
-
     public QuadBatch(Shader shader, int vertSize) {
         this.shader = shader != null ? shader : Constants.DEFAULT_SH;
         vertexSize = vertSize;
@@ -57,17 +56,17 @@ public abstract class QuadBatch extends RenderBatch {
 
     @Override
     public boolean addSprite(Sprite sprite) {
-
         if(sprite instanceof QuadSprite spr) {
             if (hasRoom() && shader == spr.getShader()) {
                 if (spr.getTexId() == -1 || hasTextureRoom() || textures.contains(spr.getTexId())) {
                     sprites.add(sprite);
+                    numSprites++;
 
                     if (spr.texId != -1)
                         if (!textures.contains(spr.texId))
                             textures.add(spr.texId);
 
-                    loadVertexProperties(sprites.size() - 1);
+                    loadVertexProperties(numSprites - 1);
                     return true;
                 }
             }
@@ -78,7 +77,7 @@ public abstract class QuadBatch extends RenderBatch {
     @Override
     public void render() {
         // Update vertices
-        for (int i = 0; i < this.sprites.size(); i++) {
+        for (int i = 0; i < numSprites; i++) {
             if(sprites.get(i).isChanged())
                 loadVertexProperties(i);
         }
@@ -107,7 +106,7 @@ public abstract class QuadBatch extends RenderBatch {
         glBindVertexArray(vaoID);
         enableVertexAttribs();
 
-        glDrawElements(GL_TRIANGLES, sprites.size() * 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, numSprites * 6, GL_UNSIGNED_INT, 0);
 
         disableVertexAttribs();
         glBindVertexArray(0);

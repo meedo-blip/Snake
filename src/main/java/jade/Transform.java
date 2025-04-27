@@ -24,6 +24,10 @@ public class Transform {
         init(position, z, scale, centerR, rotate);
     }
 
+    public Transform(Transform transform) {
+        init(new Vector2f(transform.position), transform.z, new Vector2f(transform.scale), new Vector2f(transform.centerR), transform.rotate);
+    }
+
     public void init(Vector2f position, float z, Vector2f scale, Vector2f centerR, float rotate)  {
         this.position = position;
         this.scale = scale;

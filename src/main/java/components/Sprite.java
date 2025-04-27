@@ -9,6 +9,7 @@ import renderer.Shader;
 
 public abstract class Sprite {
     protected Shader shader;
+    public Sprite parent;
     public Transform transform, pForm, offsetForm; // parent transform
     public int id;
     protected Vector4f color;
@@ -26,11 +27,11 @@ public abstract class Sprite {
         if(shader == null)
             shader = Constants.DEFAULT_SH;
 
-        Sprite parent = Window.getScene().getParentOf(this);
+       parent = Window.getScene().getParentOf(this);
 
         if (parent != null) {
             pForm = parent.transform;
-            offsetForm = new Transform();
+            offsetForm = new Transform(transform);
         }
     }
 

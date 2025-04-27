@@ -31,6 +31,6 @@ public class StaticBlock extends QuadSprite {
 
     @Override
     public void update(float dt) {
-        changed = false;
+
     }
 }

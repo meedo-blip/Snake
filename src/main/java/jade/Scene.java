@@ -1,9 +1,6 @@
 package jade;
 
-import components.FontSprite;
-import components.Sprite;
-import components.StaticBlock;
-import components.TextNode;
+import components.*;
 import font.MyFont;
 import org.joml.Vector2f;
 import renderer.Renderer;
@@ -13,13 +10,17 @@ import java.util.List;
 
 public abstract class Scene {
 
+    public float fixedDT = 0f; // in seconds
+
     protected final Renderer renderer = new Renderer();
 	protected Camera camera;
-    public float fixedDT = 0f; // in seconds
-    private int spriteId = 0;
-    private boolean isRunning = false;
     protected final List<Sprite> gameSprites = new ArrayList<>();
     protected final List<Integer> gameParents = new ArrayList<>();
+
+    private int spriteId = 0;
+    private boolean isRunning = false;
+    private int ticks = 0;
+
     public Scene() {}
 
     public void init() {}
@@ -64,19 +65,17 @@ public abstract class Scene {
         return spr;
     }
 
-    public Sprite makeText(MyFont font, String text, int x, int y, int fontsize) {
+    public Sprite makeText(MyFont font, String text, float x, float y, int fontsize) {
         return makeText(font, text, x, y, fontsize, null);
 
     }
 
-    public TextNode makeText(MyFont font, String text, int x, int y, int fontsize, Sprite grandParent) {
+    public TextNode makeText(MyFont font, String text, float x, float y, int fontsize, Sprite grandParent) {
 
         int width = text.length();
-        int height = Math.ceilDiv(text.length(), width);
+        int height = (text.length() / width) + Math.min(1, text.length() - width);
 
-        float halfW = ((float) width) / 2;
-
-        return (TextNode) addSpriteObjectToScene(new TextNode(font, text, fontsize, new Transform(new Vector2f(x,y), -1, new Vector2f(fontsize * width, fontsize * height))), grandParent);
+        return (TextNode) addSpriteObjectToScene(new DefaultTextNode(font, text, fontsize, new Transform(new Vector2f(x,y), -1, new Vector2f(fontsize * width, fontsize * height))), grandParent);
     }
 
     public Sprite getSprite(String name) {
@@ -91,11 +90,13 @@ public abstract class Scene {
         if(spr == null) return;
         int loc2 = gameParents.indexOf(-spr.id);
         if (loc2++ != -1) {
-            while (loc2 < gameParents.size()) {
-                if (!(gameParents.get(loc2) < 0)) {
-                    removeSprite(getSpriteById(gameParents.remove(loc2)));
-                }
+
+            while (!(gameParents.get(loc2) < 0)) {
+                removeSprite(getSpriteById(gameParents.remove(loc2)));
+                if(loc2 == gameParents.size() - 1)
+                    break;
             }
+
             gameParents.remove(loc2 - 1);
         }
 
@@ -108,21 +109,36 @@ public abstract class Scene {
             gameSprites.get(i).update(dt);
 
         renderer.render();
+
+        ticks++;
+    }
+
+    public int getTicks() {
+        return ticks;
     }
 
     public Camera camera() { return this.camera; }
 
     public Sprite getSpriteById(int id){
-        int half = gameSprites.size() >> 1;
-        int i = half;
+        int pos = Math.min(id, gameSprites.size() - 1);
+        int i = pos;
         for (; i >= 0; i--) {
             if(gameSprites.get(i).id == id)
                 return gameSprites.get(i);
         }
-        for (i = half + 1; i < gameSprites.size(); i++) {
+        for (i = pos + 1; i < gameSprites.size(); i++) {
             if(gameSprites.get(i).id == id)
                 return gameSprites.get(i);
         }
+
+        return null;
+    }
+
+    public Sprite getSpriteByName(String name) {
+        for (Sprite spr : gameSprites)
+            if(spr.name.equals(name))
+                return spr;
+
         return null;
     }
 
@@ -157,11 +173,15 @@ public abstract class Scene {
         if(loc != -1) {
             gameParents.remove(loc);
             while(gameParents.get(loc) >= 0){
-                removeSprite(getSpriteById(gameParents.remove(loc)));
 
-                if(gameParents.size() - 1 == loc)
+                if(gameParents.size() - 1 == loc) {
+                    removeSprite(getSpriteById(gameParents.remove(loc)));
                     break;
+                }
+
+                removeSprite(getSpriteById(gameParents.remove(loc)));
             }
         }
     }
+
 }

@@ -1,6 +1,7 @@
 package components;
 
 import org.joml.*;
+import util.Utils;
 
 public abstract class QuadSprite extends Sprite {
     public int texId = -1;
@@ -20,5 +21,9 @@ public abstract class QuadSprite extends Sprite {
 
     public float[] getTexCoords() {
         return texCoords;
+    }
+
+    public boolean checkCollision(Sprite other) {
+        return Utils.checkCollision(transform, other.transform);
     }
 }

@@ -107,7 +107,7 @@ public class Window {
         glfwMakeContextCurrent(glfwWindow);
 
         // Enable vsync, this locks your frame rate to the refresh rate of the user's monitor
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
 
         // Make the window visible
         glfwShowWindow(glfwWindow);
@@ -145,6 +145,7 @@ public class Window {
 
             endTime = (float) glfwGetTime();
             dt = endTime - startTime;
+            startTime = endTime;
 
             if(currentScene.fixedDT > dt) {
                 try {
@@ -153,7 +154,6 @@ public class Window {
                 }
             }
 
-            startTime = (float) glfwGetTime();
         }
     }
 }

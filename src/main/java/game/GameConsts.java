@@ -8,7 +8,7 @@ import util.Utils;
 public class GameConsts {
 
     public static final Shader
-            SNAKE_SH = AssetPool.getShader("assets/shaders/snake.glsl");
+            GAME_SH = AssetPool.getShader("assets/shaders/game.glsl");
 
     public static final Vector4f
         SAND_COLOR = Utils.hexToRgba("fee8b9"),

@@ -1,11 +1,9 @@
 package game;
 
-import jade.Transform;
+import jade.Window;
 import org.joml.Vector4f;
 
-import static util.Utils.DEGREES_TO_RADIANS;
-
-public class SnakeEnd extends SnakePart {
+public class SnakeEnd extends GameSprite {
 
     public SnakeJunction rotating = null;
 
@@ -26,12 +24,13 @@ public class SnakeEnd extends SnakePart {
 
     @Override
     public void update(float dt) {
-        if (rotating == null) {
-            transform.position.x += Snake.STEP * ((direction & 2) >> 1) * (((direction & 1) << 1) - 1);
-            transform.position.y -= Snake.STEP * (-((direction & 2) >> 1) + 1) * (((direction & 1) << 1) - 1);
-        } else {
-            rotate();
-        }
+        if (((GameScene)Window.getScene()).board != null)
+            if (rotating == null) {
+                transform.position.x += Snake.STEP * ((direction & 2) >> 1) * (((direction & 1) << 1) - 1);
+                transform.position.y -= Snake.STEP * (-((direction & 2) >> 1) + 1) * (((direction & 1) << 1) - 1);
+            } else {
+                rotate();
+            }
     }
 
 

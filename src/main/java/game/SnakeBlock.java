@@ -2,14 +2,14 @@ package game;
 
 import org.joml.Vector4f;
 
-public class SnakeBlock extends SnakePart {
+public class SnakeBlock extends GameSprite {
 
-    SnakePart frontPart;
-    SnakePart backPart;
+    GameSprite frontPart;
+    GameSprite backPart;
 
     public SnakeBlock(Vector4f color, byte direction,
-                      SnakePart frontPart,
-                      SnakePart backPart)
+                      GameSprite frontPart,
+                      GameSprite backPart)
     {
         this.color = color;
         this.direction = direction;

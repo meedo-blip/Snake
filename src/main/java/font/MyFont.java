@@ -8,6 +8,8 @@ import com.mlomb.freetypejni.Library;
 import util.AssetPool;
 import util.Utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -29,28 +31,47 @@ public class MyFont {
     public Map<Character, float[]> charTexCoords;
     public final JsonHandler jsonHandler;
 
-    public MyFont(String ttfPath) {
+    private static final String absFontsPath = new File("assets\\fonts").getAbsolutePath();
+
+    public MyFont(String ttfPath, int fontsize) {
+        String absPath = new File(ttfPath).getAbsolutePath();
+
+        String ttfName = ttfPath.substring(ttfPath.lastIndexOf('\\') + 1);
+        ttfName = ttfName.substring(0, ttfName.lastIndexOf('.'));
+
+        System.out.println("ttfName: " + ttfName);
+
         jsonHandler = new JsonHandler();
-        noExtensionPath = ttfPath.substring(0,ttfPath.length() - 4);
+        noExtensionPath = "assets\\fonts\\" + ttfName;
 
-        System.out.println(noExtensionPath);
+        Path path = Path.of(noExtensionPath + ".ttf");
+        if(!absPath.substring(0,absPath.lastIndexOf('\\' )).equals(absFontsPath)
+                && !Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+            try {
+                Files.copy(Path.of(absPath), path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-        if(Files.exists(Path.of(noExtensionPath + ".json"))) {
+
+        if(new File(noExtensionPath + ".json").exists()) {
             charTexCoords = jsonHandler.readCharInfo(noExtensionPath);
-            texId = AssetPool.getTexture(noExtensionPath + ".png");
+            texId = Utils.createTexture(noExtensionPath + ".png", false);
         } else {
-            texId = genBitmap(ttfPath);
+            texId = genBitmap(fontsize);
         }
     }
 
 
-    public int genBitmap(String filepath) {
+    public int genBitmap(int fontsize) {
         int upscaleResolution = 64;
 
         System.out.println("\nHi " + 1);
 
         Library library = FreeType.newLibrary();
 
+        String filepath = noExtensionPath + ".ttf";
         Face font = library.newFace(filepath, 0);
 
         System.out.println("\nHi " + 2);

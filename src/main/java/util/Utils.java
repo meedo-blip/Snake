@@ -1,6 +1,6 @@
 package util;
 
-import org.joml.Vector2f;
+import jade.Transform;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
@@ -87,14 +87,14 @@ public class Utils {
 		return texID;
 	}
 
-	public static int createTexture(String filepath) {
+	public static int createTexture(String filepath, boolean flip_on_load) {
 
 		IntBuffer width = BufferUtils.createIntBuffer(1);
 		IntBuffer height = BufferUtils.createIntBuffer(1);
 		IntBuffer channels = BufferUtils.createIntBuffer(1);
 
 		// Images will be flipped back up from upside down
-		stbi_set_flip_vertically_on_load(true);
+		stbi_set_flip_vertically_on_load(flip_on_load);
 		ByteBuffer image = stbi_load(filepath, width, height, channels, 0);
 
 		int texID = generateTexture(image, width.get(0), height.get(0), channels.get(0));
@@ -139,4 +139,36 @@ public class Utils {
 
 		return arr;
 	}
+
+	public static int getRandomInteger(int a, int b) {
+		return (int) (Math.random() * (a + b)) - a;
+	}
+
+	public static boolean checkCollision(Transform transform1, Transform transform2) {
+
+		// 00 01 10 11
+		float ax1 = transform1.position.x - (transform1.scale.x / 2);
+		float ay1 = transform1.position.y + (transform1.scale.y / 2);
+
+		float ax2 = transform1.position.x + (transform1.scale.x / 2);
+		float ay2 = transform1.position.y + (transform1.scale.y / 2);
+
+		float ax3 = transform1.position.x - (transform1.scale.x / 2);
+		float ay3 = transform1.position.y - (transform1.scale.y / 2);
+
+		float ax4 = transform1.position.x + (transform1.scale.x / 2);
+		float ay4 = transform1.position.y - (transform1.scale.y / 2);
+
+		// 00 11
+		float bx1 = transform2.position.x - (transform2.scale.x / 2);
+		float by1 = transform2.position.y + (transform2.scale.y / 2);
+
+		float bx2 = transform2.position.x + (transform2.scale.x / 2);
+		float by2 = transform2.position.y - (transform2.scale.y / 2);
+
+		if(ax1 >= bx1 && ax1 <= bx2 && ay1 <= by1 && ay1 >= by2) return true;
+		if(ax2 >= bx1 && ax2 <= bx2 && ay2 <= by1 && ay2 >= by2) return true;
+		if(ax3 >= bx1 && ax3 <= bx2 && ay3 <= by1 && ay3 >= by2) return true;
+        return ax4 >= bx1 && ax4 <= bx2 && ay4 <= by1 && ay4 >= by2;
+    }
 }

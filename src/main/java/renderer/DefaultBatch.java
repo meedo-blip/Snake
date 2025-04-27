@@ -1,9 +1,7 @@
 package renderer;
 
 import components.QuadSprite;
-import game.SnakePart;
 import jade.Transform;
-import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;

@@ -3,7 +3,7 @@ package game;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
-public class SnakeJunction extends SnakePart {
+public class SnakeJunction extends GameSprite {
 //                                    shape: from 3 to 6
     int snakeTick = 0;
 

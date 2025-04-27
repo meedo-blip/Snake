@@ -1,17 +1,16 @@
 package renderer;
 
-import components.QuadSprite;
 import components.Sprite;
 
 import java.util.*;
 
 import static jade.Constants.MAX_BATCH_SIZE;
-import static org.lwjgl.opengl.ARBVertexArrayObject.glGenVertexArrays;
 
 public abstract class RenderBatch {
 
     protected List<Sprite> sprites;
     protected int vertexSize;
+    protected int numSprites = 0;
     protected float[] vertices;
 
     protected int vaoID, vboID;
@@ -35,6 +34,7 @@ public abstract class RenderBatch {
 
     public boolean removeSprite(Sprite spr) {
         if (this.sprites.remove(spr)) {
+            numSprites--;
             for (int i = 0; i < sprites.size(); i++) {
                 loadVertexProperties(i);
             }
