@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id 'java'
 }
@@ -5,16 +7,31 @@ plugins {
 version '1.0-ALPHA'
 
 repositories {
+    mavenCentral()
     flatDir {
         dirs 'libs'
     }
-    mavenCentral()
 }
 
 project.ext.lwjglVersion = "3.2.3"
 project.ext.jomlVersion = "1.9.23"
-project.ext.lwjglNatives = "natives-windows"
-project.ext.imguiVersion = '1.81.0'
+
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+        project.ext.lwjglNatives = "natives-linux"
+        def osArch = System.getProperty("os.arch")
+        if (osArch.startsWith("arm") || osArch.startsWith("aarch64")) {
+            project.ext.lwjglNatives += osArch.contains("64") || osArch.startsWith("armv8") ? "-arm64" : "-arm32"
+        } else if  (osArch.startsWith("ppc")) {
+            project.ext.lwjglNatives += "-ppc64le"
+        } else if  (osArch.startsWith("riscv")) {
+            project.ext.lwjglNatives += "-riscv64"
+        }
+        break
+    case OperatingSystem.WINDOWS:
+        project.ext.lwjglNatives = "natives-windows"
+        break
+}
 
 dependencies {
     // Annotations
@@ -25,9 +42,6 @@ dependencies {
 
     // Json handling by jackson
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4.2'
-
-    // ImGUI stuff
-    implementation "io.github.spair:imgui-java-app:$imguiVersion"
 
     // LWJGL stuff
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
@@ -64,13 +78,6 @@ jar {
     }
 }
 
-task copyAssets(type: Copy) {
-    copy {
-        from "assets"
-        into "${buildDir}/libs/assets"
-    }
-}
-
 task fatJar(type: Jar) {
     manifest.from jar.manifest
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -83,8 +90,6 @@ task fatJar(type: Jar) {
     }
     with jar
 }
-
-fatJar.dependsOn(copyAssets)
 
 artifacts {
     archives fatJar
