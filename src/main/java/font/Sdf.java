@@ -15,7 +15,6 @@ import java.nio.ByteBuffer;
 
 import static com.mlomb.freetypejni.FreeType.*;
 import static com.mlomb.freetypejni.FreeTypeConstants.FT_LOAD_RENDER;
-import static org.lwjgl.opengl.GL11.*;
 
 public class Sdf {
     private static float mapRange(float val, float in_min, float in_max,

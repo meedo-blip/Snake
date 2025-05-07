@@ -7,7 +7,7 @@ public class SnakeJunction extends GameSprite {
 //                                    shape: from 3 to 6
     int snakeTick = 0;
 
-    public final float angleStep;
+    public final double angleStep;
     public final byte newDirection;
 
     public SnakeJunction(byte newDirection, byte direction, Vector4f color, int shape) {

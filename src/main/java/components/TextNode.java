@@ -1,8 +1,6 @@
 package components;
 
 import font.MyFont;
-import game.GameConsts;
-import game.GameScene;
 import jade.Constants;
 import jade.Transform;
 import jade.Window;

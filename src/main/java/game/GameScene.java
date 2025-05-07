@@ -8,9 +8,8 @@ import jade.*;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import util.AssetPool;
+import util.Time;
 import util.Utils;
-
-import java.io.File;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_R;
 
@@ -30,6 +29,7 @@ public class GameScene extends Scene {
     private Snake snake;
     public Sprite board;
     public int score = 0;
+    public static final int fps = 165;
 
     private TextNode fpsDisplay;
     private TextNode scoreDisplay;
@@ -50,7 +50,7 @@ public class GameScene extends Scene {
     public void init() {
         this.camera = new Camera(new Vector2f(-1, 1));
 
-        fixedDT = 0.05f;
+        fixedDT = 1f / fps;
 
         AssetPool.addBatchGetterToShader(GameConsts.GAME_SH, GameBatch::new);
 
@@ -76,6 +76,7 @@ public class GameScene extends Scene {
     public void start() {
         super.start();
         snake.start();
+
     }
 
     @Override
@@ -92,10 +93,10 @@ public class GameScene extends Scene {
                 board = null;
             }
 
-
-        fpsDisplay.changeText("FPS: " + (int)(1f / dt));
-
         snake.update();
+
+        if(Window.getTicks() % fps == 0)
+            fpsDisplay.changeText("FPS: " + (int) (1f / dt));
 
         super.update(dt);
     }

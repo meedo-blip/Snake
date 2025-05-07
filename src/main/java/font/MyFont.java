@@ -5,20 +5,13 @@ import com.mlomb.freetypejni.Bitmap;
 import com.mlomb.freetypejni.Face;
 import com.mlomb.freetypejni.FreeType;
 import com.mlomb.freetypejni.Library;
-import util.AssetPool;
 import util.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.mlomb.freetypejni.FreeType.*;

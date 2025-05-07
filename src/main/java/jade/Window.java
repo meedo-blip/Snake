@@ -35,6 +35,8 @@ public class Window {
     private long audioDevice;
     private long audioContext;
 
+    private long ticks = 0;
+
     private Window() {
         bufferH = BufferUtils.createIntBuffer(1);
         bufferW = BufferUtils.createIntBuffer(1);
@@ -54,6 +56,8 @@ public class Window {
 
         return Window.window;
     }
+
+    public static long getTicks() {return window.ticks; }
 
     public static Scene getScene() {
         return currentScene;
@@ -181,6 +185,7 @@ public class Window {
                 }
             }
 
+            ++ticks;
         }
     }
 }
