@@ -1,5 +1,6 @@
 package components;
 
+import jade.Constants;
 import org.joml.*;
 import util.Utils;
 
@@ -17,6 +18,13 @@ public abstract class QuadSprite extends Sprite {
 
     public int getTexId() {
         return texId;
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        if(color == null)
+            color = Constants.INVISIBLE;
     }
 
     public float[] getTexCoords() {

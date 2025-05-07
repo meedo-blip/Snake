@@ -79,17 +79,17 @@ out vec4 color;
 void main() {
     int shape = int(fAttribs) - 3;
 
-    if (shape == -3)
-    if (pow(fTexCoords.x, 2) + pow(fTexCoords.y - 0.5f, 2) > 0.25)
-    discard;
-
+    if (shape == -3) {
+        if (pow(fTexCoords.x, 2) + pow(fTexCoords.y - 0.5f, 2) > 0.25)
+        discard;
+    }
     else if (shape == -2) {
         if (pow(fTexCoords.x - 0.5f, 2) + pow(fTexCoords.y - 0.5f, 2) > 0.25f) {
             discard;
         }
     }
 
-    if (shape >= 0) {
+    else if (shape >= 0) {
         float ox = (shape & 1)  ^ ((shape & 1) ^ ((shape & 2) >> 1)),
         oy = ((shape & 2) >> 1) ^ ((shape & 1) ^ ((shape & 2) >> 1));
 
@@ -118,8 +118,8 @@ void main() {
         color = vec4(fColor.xyz, 1f);
     }
 
-    if(fTexCoords.x <= 0.05f || fTexCoords.y <= 0.05f
-    || fTexCoords.x >= 0.95f || fTexCoords.y >= 0.95f) {
-        color = vec4(1,1,1,1);
-    }
+   // if(fTexCoords.x <= 0.05f || fTexCoords.y <= 0.05f
+    //|| fTexCoords.x >= 0.95f || fTexCoords.y >= 0.95f) {
+    //    color = vec4(1,1,1,1);
+    //}
 }

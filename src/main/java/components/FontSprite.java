@@ -2,14 +2,14 @@ package components;
 
 import jade.Constants;
 import jade.Transform;
+import org.joml.Vector4f;
 
 public class FontSprite extends QuadSprite {
 
-    public FontSprite(int texId, float[] texCoords, Transform transform) {
+    public FontSprite(int texId, float[] texCoords, Vector4f color) {
         this.shader = Constants.FONT_SH;
         this.texId = texId;
-        this.transform = transform;
-        this.color = Constants.WHITE;
+        this.color = color;
         this.texCoords = texCoords;
     }
 

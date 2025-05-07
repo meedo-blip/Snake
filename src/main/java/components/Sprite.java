@@ -31,6 +31,8 @@ public abstract class Sprite {
         if (parent != null) {
             pForm = parent.transform;
             offsetForm = new Transform(transform);
+            transform.position.x += pForm.position.x;
+            transform.position.y += pForm.position.y;
         }
     }
 

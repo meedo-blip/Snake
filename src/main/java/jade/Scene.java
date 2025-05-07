@@ -3,6 +3,7 @@ package jade;
 import components.*;
 import font.MyFont;
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 import renderer.Renderer;
 
 import java.util.ArrayList;
@@ -65,17 +66,17 @@ public abstract class Scene {
         return spr;
     }
 
-    public Sprite makeText(MyFont font, String text, float x, float y, int fontsize) {
-        return makeText(font, text, x, y, fontsize, null);
+    public Sprite makeText(MyFont font, String text, float x, float y, int fontsize, Vector4f color) {
+        return makeText(font, text, x, y, fontsize, color, null);
 
     }
 
-    public TextNode makeText(MyFont font, String text, float x, float y, int fontsize, Sprite grandParent) {
+    public TextNode makeText(MyFont font, String text, float x, float y, int fontsize, Vector4f color, Sprite grandParent) {
 
         int width = text.length();
         int height = (text.length() / width) + Math.min(1, text.length() - width);
 
-        return (TextNode) addSpriteObjectToScene(new DefaultTextNode(font, text, fontsize, new Transform(new Vector2f(x,y), -1, new Vector2f(fontsize * width, fontsize * height))), grandParent);
+        return (TextNode) addSpriteObjectToScene(new DefaultTextNode(font, text, fontsize, color).setTransform(new Transform(new Vector2f(x,y), -1, new Vector2f(fontsize * width, fontsize * height))), grandParent);
     }
 
     public Sprite getSprite(String name) {
@@ -93,7 +94,7 @@ public abstract class Scene {
 
             while (!(gameParents.get(loc2) < 0)) {
                 removeSprite(getSpriteById(gameParents.remove(loc2)));
-                if(loc2 == gameParents.size() - 1)
+                if(loc2 == gameParents.size())
                     break;
             }
 

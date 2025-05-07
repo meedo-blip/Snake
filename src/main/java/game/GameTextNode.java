@@ -3,11 +3,12 @@ package game;
 import components.TextNode;
 import font.MyFont;
 import jade.Transform;
+import org.joml.Vector4f;
 
 public class GameTextNode extends TextNode {
 
-    public GameTextNode(MyFont font, String text, int fontsize, Transform transform) {
-        super(font, text, fontsize, transform);
+    public GameTextNode(MyFont font, String text, int fontsize, Vector4f color) {
+        super(font, text, fontsize, color);
     }
 
     @Override

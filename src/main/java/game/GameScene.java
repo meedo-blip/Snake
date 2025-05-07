@@ -8,8 +8,17 @@ import jade.*;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import util.AssetPool;
+import util.LocalStorage;
+import util.Time;
 import util.Utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
+
+import static java.lang.Integer.parseInt;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_R;
 
 public class GameScene extends Scene {
@@ -32,9 +41,13 @@ public class GameScene extends Scene {
 
     private TextNode fpsDisplay;
     private TextNode scoreDisplay;
+    private TextNode highScoreDisplay;
+
+    private int highscore = 0;
+    private static final Path hsPath = Path.of("assets/highscore.txt");
 
     @Override
-    public TextNode makeText(MyFont font, String text, float x, float y, int fontsize, Sprite grandParent) {
+    public TextNode makeText(MyFont font, String text, float x, float y, int fontsize, Vector4f color,  Sprite grandParent) {
 
         int width = text.length();
         int height = Math.ceilDiv(text.length(), width);
@@ -42,7 +55,9 @@ public class GameScene extends Scene {
         float halfW = ((float) width) / 2;
 
         return (TextNode) addSpriteObjectToScene(
-                new GameTextNode(font, text, fontsize, new Transform(new Vector2f(x * GameScene.pixelWidth,y * GameScene.pixelWidth), -1, new Vector2f(fontsize * width, fontsize * height))), grandParent);
+                new GameTextNode(font, text, fontsize, color)
+                        .setTransform(new Transform(new Vector2f(x * GameScene.pixelWidth,y * GameScene.pixelWidth), -1, new Vector2f(fontsize * width, fontsize * height))
+                ), grandParent);
     }
 
     @Override
@@ -67,15 +82,22 @@ public class GameScene extends Scene {
 
         System.out.println("Init");
 
-        scoreDisplay = (TextNode) makeText(Constants.ARIAL_FONT, "Score: " + score, -5, -5.5f, 64);
-        fpsDisplay = (TextNode) makeText(Constants.ARIAL_FONT, "FPS: 000", 5, -5.5f, 64);
+
+        try {
+            highscore = parseInt(LocalStorage.get("hs"));
+        } catch (NumberFormatException e) {
+            highscore = 0;
+        }
+
+        scoreDisplay = (TextNode) makeText(Constants.ARIAL_FONT, "Score: " + score, -5, -5.5f, 64, Constants.WHITE);
+        fpsDisplay = (TextNode) makeText(Constants.ARIAL_FONT, "FPS: 000", 5, -5.5f, 64, Constants.WHITE);
+        highScoreDisplay = (TextNode) makeText(Constants.ARIAL_FONT, "High Score: " + highscore, -5, -7f, 32, Constants.YELLOW_ORANGE);
     }
 
     @Override
     public void start() {
         super.start();
         snake.start();
-
     }
 
     @Override
@@ -94,8 +116,13 @@ public class GameScene extends Scene {
 
         snake.update();
 
-        if(Window.getTicks() % fps == 0)
+        if(Window.getTicks() % fps == 0) {
             fpsDisplay.changeText("FPS: " + (int) (1f / dt));
+            if(score > highscore) {
+                highscore = score;
+                LocalStorage.set("hs", highscore + "");
+            }
+        }
 
         super.update(dt);
     }
@@ -105,8 +132,14 @@ public class GameScene extends Scene {
         int y = (int)(Utils.getRandomInteger(0, boardLen + 1) - ((float) boardLen / 2));
 
         apple = (GameBlock) Window.getScene().addSpriteObjectToScene(
-                new GameBlock(1, new Vector4f(1, 0, 0, 1))
+                new GameBlock(1, Constants.RED)
                         .setTransform(new Transform(new Vector2f(x,y), -1, new Vector2f(GameScene.pixelWidth / 2, GameScene.pixelWidth / 2)))
+        );
+
+        Window.getScene().addSpriteObjectToScene(
+                new GameBlock(1, Constants.BROWN)
+                        .setTransform(new Transform(new Vector2f(0, -0.25f), -1, new Vector2f(GameScene.pixelWidth / 5, GameScene.pixelWidth / 3))),
+                apple
         );
 
     }

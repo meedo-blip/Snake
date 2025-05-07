@@ -73,7 +73,7 @@ public class Snake {
 
         gameScene.makeApple();
 
-        Window.getScene().makeText(Constants.ARIAL_FONT, "head", 0, 0, 12, snakeHead);
+        Window.getScene().makeText(Constants.ARIAL_FONT, "head", 0, 0, 12, Constants.YELLOW_ORANGE,  snakeHead);
 
     }
 

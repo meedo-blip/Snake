@@ -1,9 +1,11 @@
 package jade;
 
 import font.MyFont;
+import jdk.jshell.execution.Util;
 import org.joml.Vector4f;
 import renderer.Shader;
 import util.AssetPool;
+import util.Utils;
 
 public class Constants {
     public static final int MAX_BATCH_SIZE = 1000;
@@ -14,8 +16,11 @@ public class Constants {
 
     public static final MyFont ARIAL_FONT = new MyFont("assets\\fonts\\arialbd.ttf", 64);
 
-    public static final Vector4f BLACK = new Vector4f(0,0,0,1);
-    public static final Vector4f WHITE = new Vector4f(1,1,1,1);
-    public static final Vector4f INVISIBLE = new Vector4f(1,1,1,0);
-
+    public static final Vector4f BLACK = new Vector4f(0,0,0,1),
+    WHITE = new Vector4f(1,1,1,1),
+    INVISIBLE = new Vector4f(1,1,1,0),
+    YELLOW_ORANGE = Utils.hexToRgba("ff9900"),
+    YELLOW = new Vector4f(1,1,0,1),
+    BROWN = Utils.hexToRgba("663300"),
+    RED = new Vector4f(1,0,0,1);
 }
