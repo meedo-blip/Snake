@@ -25,8 +25,8 @@ public class Renderer {
 
     public void add(Sprite spr) {
         if(spr != null) {
-            if (spr instanceof QuadSprite sprite) {
-                add(sprite);
+            if (spr instanceof QuadSprite) {
+                add((QuadSprite) spr);
             }
         }
 

@@ -56,7 +56,8 @@ public abstract class QuadBatch extends RenderBatch {
 
     @Override
     public boolean addSprite(Sprite sprite) {
-        if(sprite instanceof QuadSprite spr) {
+        if(sprite instanceof QuadSprite) {
+            QuadSprite spr = (QuadSprite) sprite;
             if (hasRoom() && shader == spr.getShader()) {
                 if (spr.getTexId() == -1 || hasTextureRoom() || textures.contains(spr.getTexId())) {
                     sprites.add(sprite);
