@@ -49,13 +49,26 @@ uniform sampler2D uTextures[8];
 out vec4 color;
 
 void main() {
-    float c = texture(uTextures[int(fTexId)], fTexCoords).g;
-
-    if (c>0.5f) {
+	int id = int(fTexId);
+        vec4 texColor = vec4(0.0);
+        switch (id){
+        	case 0: texColor = texture(uTextures[0], fTexCoords); break;
+        	case 1: texColor = texture(uTextures[1], fTexCoords); break;
+        	case 2: texColor = texture(uTextures[2], fTexCoords); break;
+        	case 3: texColor = texture(uTextures[3], fTexCoords); break;
+		case 4: texColor = texture(uTextures[4], fTexCoords); break;        
+		case 5: texColor = texture(uTextures[5], fTexCoords); break;        
+		case 6: texColor = texture(uTextures[6], fTexCoords); break;        
+        	case 7: texColor = texture(uTextures[7], fTexCoords); break;
+        }
+    	
+    float c = texColor.g;
+	
+    if (c>0.5) {
         color =  vec4(fColor.xyz, 1);
     }
-    else if(c <= 0.5f && c > 0.45f)
-        color = vec4(fColor.xyz * 0.5f,1);
+    else if(c <= 0.5 && c > 0.45)
+        color = vec4(fColor.xyz * 0.5,1);
     else
         discard;
 }

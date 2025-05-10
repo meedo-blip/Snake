@@ -25,7 +25,7 @@ public class GameBatch extends QuadBatch {
             VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
 
     public GameBatch() {
-        super(GameConsts.GAME_SH, 9);
+        super(GameConsts.GAME_SH, VERTEX_SIZE);
     }
 
     @Override
@@ -53,8 +53,7 @@ public class GameBatch extends QuadBatch {
         Transform transform = sprite.transform;
 
         // texID is the tex position in textures
-        // 0 means no texture
-        float z_id = textures.indexOf(sprite.getTexId()) + 1 + ((sprite.getShape() & 7) << 4);
+        float z_id = 0 + ((sprite.getShape() & 7) << 4);
 
         float halfX = transform.scale.x / 2;
         float halfY = transform.scale.y / 2;

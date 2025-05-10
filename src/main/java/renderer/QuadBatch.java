@@ -50,6 +50,7 @@ public abstract class QuadBatch extends RenderBatch {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
         initAttribPointers();
+        
     }
 
     protected abstract void initAttribPointers();
@@ -98,7 +99,7 @@ public abstract class QuadBatch extends RenderBatch {
         uploadUniforms();
 
         for (int i = 0; i < textures.size(); i++) {
-            glActiveTexture(GL_TEXTURE0 + i + 1);
+            glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, textures.get(i));
         }
 
@@ -113,7 +114,7 @@ public abstract class QuadBatch extends RenderBatch {
         glBindVertexArray(0);
 
         for (int i = 0; i < textures.size(); i++) {
-            glBindTexture(GL_TEXTURE_2D, 0);
+            glBindTexture(GL_TEXTURE_2D, -1);
         }
 
         shader.detach();

@@ -92,22 +92,26 @@ public class Utils {
 	}
 
 	public static int createTexture(String filepath, boolean flip_on_load) {
+	    IntBuffer width = BufferUtils.createIntBuffer(1);
+	    IntBuffer height = BufferUtils.createIntBuffer(1);
+	    IntBuffer channels = BufferUtils.createIntBuffer(1);
 
-		IntBuffer width = BufferUtils.createIntBuffer(1);
-		IntBuffer height = BufferUtils.createIntBuffer(1);
-		IntBuffer channels = BufferUtils.createIntBuffer(1);
+	    stbi_set_flip_vertically_on_load(flip_on_load);
 
-		// Images will be flipped back up from upside down
-		stbi_set_flip_vertically_on_load(flip_on_load);
-		ByteBuffer image = stbi_load(filepath, width, height, channels, 0);
+	    // 🔧 Force 4 channels (RGBA)
+	    ByteBuffer image = stbi_load(filepath, width, height, channels, 4);
 
-		int texID = generateTexture(image, width.get(0), height.get(0), channels.get(0));
+	    if (image == null) {
+		throw new RuntimeException("Failed to load image: " + filepath + "\n" + stbi_failure_reason());
+	    }
 
-		// free up the image from memory
-		if (image != null)
-			stbi_image_free(image);
+	    System.out.println("Loaded texture: " + filepath);
+	    System.out.println("Width: " + width.get(0) + ", Height: " + height.get(0) + ", Channels (forced): 4");
 
-		return texID;
+	    int texID = generateTexture(image, width.get(0), height.get(0), 4);
+
+	    stbi_image_free(image);
+	    return texID;
 	}
 
 	public static Vector4f hexToRgba(String hex) {
