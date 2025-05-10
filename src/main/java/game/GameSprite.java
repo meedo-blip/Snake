@@ -16,6 +16,7 @@ public abstract class GameSprite extends QuadSprite {
     public void start() {
         super.start();
         System.out.println(getName());
+        texId = -1;
     }
 
     public int getShape() {

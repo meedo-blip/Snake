@@ -2,6 +2,13 @@ plugins {
     id 'java'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+
 version ''
 
 repositories {
@@ -13,7 +20,7 @@ repositories {
 
 project.ext.lwjglVersion = "3.2.3"
 project.ext.jomlVersion = "1.9.23"
-project.ext.lwjglNatives = "natives-windows"
+project.ext.lwjglNatives = "natives-linux"
 project.ext.imguiVersion = '1.81.0'
 
 dependencies {
@@ -21,13 +28,13 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:26.0.2'
 
     // Custom libs like freetype
-    implementation fileTree('libs') {include '*.jar' }
+    //implementation fileTree('libs') {include '*.jar' }
 
     // Json handling by jackson
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4.2'
 
     // ImGUI stuff
-    implementation "io.github.spair:imgui-java-app:$imguiVersion"
+    //implementation "io.github.spair:imgui-java-app:$imguiVersion"
 
     // LWJGL stuff
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
@@ -59,11 +66,15 @@ jar {
         )
     }
 
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        from {
+        configurations.runtimeClasspath
+            .filter { it.name.contains("natives-linux") }
+            .collect { zipTree(it) }
+    } {
+        include "**/*.so"
+        into "natives"
     }
 }
-
 task copyAssets(type: Copy) {
     copy {
         from "assets"
@@ -85,6 +96,18 @@ task fatJar(type: Jar) {
 }
 
 fatJar.dependsOn(copyAssets)
+
+task extractNatives(type: Copy) {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    def natives = configurations.runtimeClasspath.filter { it.name.contains("natives-linux") }
+
+    from {
+        natives.collect { zipTree(it) }
+    }
+    into "$buildDir/natives"
+}
+
 
 artifacts {
     archives fatJar

@@ -25,6 +25,7 @@ public abstract class QuadSprite extends Sprite {
         super.start();
         if(color == null)
             color = Constants.INVISIBLE;
+    
     }
 
     public float[] getTexCoords() {
