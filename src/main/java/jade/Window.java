@@ -1,5 +1,6 @@
 package jade;
 
+import font.MyFont;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.openal.AL;
@@ -151,6 +152,8 @@ public class Window {
 
         // Get window size through mutable buffer
         glfwGetWindowSize(window.glfwWindow, bufferW, bufferH);
+
+        Constants.ARIAL_FONT = new MyFont("assets\\fonts\\arialbd.ttf", 64);
 
         System.out.println("Your Gpu supports upto " + texture_units[0] + " textures per batch.");
     }

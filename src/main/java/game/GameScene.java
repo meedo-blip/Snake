@@ -44,7 +44,6 @@ public class GameScene extends Scene {
     private TextNode highScoreDisplay;
 
     private int highscore = 0;
-    private static final Path hsPath = Path.of("assets/highscore.txt");
 
     @Override
     public TextNode makeText(MyFont font, String text, float x, float y, int fontsize, Vector4f color,  Sprite grandParent) {
@@ -64,7 +63,7 @@ public class GameScene extends Scene {
     public void init() {
         this.camera = new Camera(new Vector2f(-1, 1));
 
-        fixedDT = 1f / fps;
+        fixedDT = 0.05f;
 
         AssetPool.addBatchGetterToShader(GameConsts.GAME_SH, GameBatch::new);
 
@@ -89,9 +88,10 @@ public class GameScene extends Scene {
             highscore = 0;
         }
 
-        scoreDisplay = (TextNode) makeText(Constants.ARIAL_FONT, "Score: " + score, -5, -5.5f, 64, Constants.WHITE);
-        fpsDisplay = (TextNode) makeText(Constants.ARIAL_FONT, "FPS: 000", 5, -5.5f, 64, Constants.WHITE);
-        highScoreDisplay = (TextNode) makeText(Constants.ARIAL_FONT, "High Score: " + highscore, -5, -7f, 32, Constants.YELLOW_ORANGE);
+        scoreDisplay = (TextNode) this.makeText(Constants.ARIAL_FONT, "Score: " + score, -5, -5.5f, 64, Constants.WHITE);
+        fpsDisplay = (TextNode) this.makeText(Constants.ARIAL_FONT, "FPS: 000", 5, -5.5f, 64, Constants.WHITE);
+        highScoreDisplay = (TextNode) this.makeText(Constants.ARIAL_FONT, "High Score: " + highscore, -5, -7f, 32, Constants.YELLOW_ORANGE);
+
     }
 
     @Override

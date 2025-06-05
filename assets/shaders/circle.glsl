@@ -28,7 +28,7 @@ void main() {
                             : vert == 1 ? vec2(-aScale.x, aScale.y)
                             : aScale , 0.0);
 
-    fColor = vec4(aColor,0f);
+    fColor = vec4(aColor,0);
     fTexCoords = aTexCoords;
     fTexId = aTexId;
 
@@ -48,7 +48,7 @@ uniform sampler2D uTextures[8];
 out vec4 color;
 
 void main() {
-    if((fTexCoords.x * fTexCoords.x) + (fTexCoords.y * fTexCoords.y) > 0.25f)
+    if((fTexCoords.x * fTexCoords.x) + (fTexCoords.y * fTexCoords.y) > 0.25)
         discard;
 
     if (fTexId > 0) {

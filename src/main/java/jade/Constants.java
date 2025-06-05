@@ -14,7 +14,7 @@ public class Constants {
                         FONT_SH = AssetPool.getShader("assets/shaders/sdf.glsl"),
                         CIRCLE_SH = AssetPool.getShader("assets/shaders/circle.glsl");
 
-    public static final MyFont ARIAL_FONT = new MyFont("assets\\fonts\\arialbd.ttf", 64);
+    public static MyFont ARIAL_FONT;
 
     public static final Vector4f BLACK = new Vector4f(0,0,0,1),
     WHITE = new Vector4f(1,1,1,1),

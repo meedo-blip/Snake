@@ -1,5 +1,6 @@
 package components;
 
+import jade.Constants;
 import org.joml.Vector2f;
 import renderer.Shader;
 import org.joml.Vector4f;
@@ -15,7 +16,7 @@ public class StaticBlock extends QuadSprite {
     public StaticBlock(Shader shader, int texture) {
         this.shader = shader;
         this.texId = texture;
-        this.color = new Vector4f(1,0,1,1);
+        this.color = Constants.WHITE;
     }
 
     @Override

@@ -34,10 +34,10 @@ void main() {
 
     fColor = aColor;
     fAttribs = abs(attribs >> 4);
-    fTexCoords = vert == 0 ? vec2(0f,1f)
-        : vert == 1 ? vec2(0f, 0f)
-        : vert == 2 ? vec2(1f, 0f)
-        : vec2(1f, 1f);
+    fTexCoords = vert == 0 ? vec2(0.0,1.0)
+        : vert == 1 ? vec2(0.0, 0.0)
+        : vert == 2 ? vec2(1.0, 0.0)
+        : vec2(1.0, 1.0);
 
     fTexId = attribs & 15;
 
@@ -48,7 +48,7 @@ void main() {
         gl_Position = uView * uProjection * vec4(((pos.x * c) - (pos.y * s)) + center.x,
         ((s * pos.x) + (c * pos.y)) + center.y, -1, 1.0);
     } else {
-        gl_Position = uView * uProjection * vec4(pos + center, -1, 1.0f);
+        gl_Position = uView * uProjection * vec4(pos + center, -1, 1.0);
     }
 }
 
@@ -80,11 +80,11 @@ void main() {
     int shape = int(fAttribs) - 3;
 
     if (shape == -3) {
-        if (pow(fTexCoords.x, 2) + pow(fTexCoords.y - 0.5f, 2) > 0.25)
+        if (pow(fTexCoords.x, 2) + pow(fTexCoords.y - 0.5, 2) > 0.25)
         discard;
     }
     else if (shape == -2) {
-        if (pow(fTexCoords.x - 0.5f, 2) + pow(fTexCoords.y - 0.5f, 2) > 0.25f) {
+        if (pow(fTexCoords.x - 0.5, 2) + pow(fTexCoords.y - 0.5, 2) > 0.25) {
             discard;
         }
     }
@@ -95,7 +95,7 @@ void main() {
 
         float dist = pow(fTexCoords.x - ox, 2) + pow(fTexCoords.y - oy, 2);
 
-        if (dist < 0.0675f || dist > 0.5625f) {
+        if (dist < 0.0675 || dist > 0.5625) {
             discard;
         }
 
@@ -113,13 +113,13 @@ void main() {
 
 
     if (fTexId > 0) {
-        color = vec4(fColor.xyz, 1f) * texture(uTextures[int(fTexId)], fTexCoords);
+        color = vec4(fColor.xyz, 1) * texture(uTextures[int(fTexId)], fTexCoords);
     } else {
-        color = vec4(fColor.xyz, 1f);
+        color = vec4(fColor.xyz, 1);
     }
 
-   // if(fTexCoords.x <= 0.05f || fTexCoords.y <= 0.05f
-    //|| fTexCoords.x >= 0.95f || fTexCoords.y >= 0.95f) {
+   // if(fTexCoords.x <= 0.05 || fTexCoords.y <= 0.05
+    //|| fTexCoords.x >= 0.95 || fTexCoords.y >= 0.95) {
     //    color = vec4(1,1,1,1);
     //}
 }

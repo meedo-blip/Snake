@@ -12,14 +12,14 @@ public class DefaultBatch extends QuadBatch {
     // =======
     // Pos              Scale               Color                  Tex coords      tex id
     // float, float     float, float,       float, float, float    float, float    float
-    private final int
+    private static final int
             POS_SIZE = 3,
             SCALE_SIZE = 2,
             COLOR_SIZE = 4,
             TEX_COORDS_SIZE = 2,
             TEX_ID_SIZE = 1;
 
-    protected final int
+    protected static final int
             POS_OFFSET = 0,
             SCALE_OFFSET = POS_OFFSET + (POS_SIZE * Float.BYTES),
             COLOR_OFFSET = SCALE_OFFSET + (SCALE_SIZE * Float.BYTES),
@@ -29,7 +29,7 @@ public class DefaultBatch extends QuadBatch {
             VERTEX_SIZE_BYTES = VERTEX_SIZE * Float.BYTES;
 
     public DefaultBatch(Shader shader) {
-        super(shader, 11);
+        super(shader, VERTEX_SIZE);
     }
 
     @Override
@@ -78,6 +78,9 @@ public class DefaultBatch extends QuadBatch {
         // texID is the tex position in textures
         // 0 means no texture
         float tex_id = textures.indexOf(sprite.getTexId()) + 1;
+
+        System.out.println("Tex Id of " + sprite.getName() + " is " + tex_id);
+
         float halfX = transform.scale.x / 2;
         float halfY = transform.scale.y / 2;
 

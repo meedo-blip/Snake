@@ -13,8 +13,8 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Snake {
     public Vector4f color;
     public static final double
-            STEP =  1d / GameScene.fps, // step per pixel width
-            ANGLE_STEP = (90d / GameScene.fps) * Utils.DEGREES_TO_RADIANS;
+            STEP =  1d / 25, // step per pixel width
+            ANGLE_STEP = (90d / 25) * Utils.DEGREES_TO_RADIANS;
 
     public static final float SNAKE_WIDTH = 0.5f;
 
@@ -31,7 +31,6 @@ public class Snake {
     private List<SnakeJunction> junctions;
 
     private Vector2f headPos, backPos;
-    private GameSprite point;
 
     public Snake() {
         color = new Vector4f(0.5f, 1f, 0.5f, 1f);
@@ -90,7 +89,7 @@ public class Snake {
 
 
         if (snakeHead.rotating != null) {
-            if (snakeHead.rotating.getSnakeTick() >= GameScene.fps) {
+            if (snakeHead.rotating.getSnakeTick() >= 25) {
                 snakeHead.rotating = null;
 
                 genSnakePart("block",2, headPos.x(),
@@ -100,7 +99,7 @@ public class Snake {
         }
 
         if (snakeBack.rotating != null) {
-            if (snakeBack.rotating.getSnakeTick() == GameScene.fps) {
+            if (snakeBack.rotating.getSnakeTick() == 25) {
                 snakeBack.rotating = null;
                 Window.getScene().removeSprite(junctions.removeFirst());
 
