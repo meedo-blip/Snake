@@ -1,4 +1,4 @@
-# Snake Game in java
+# Snake Game in java (textures not working)
 ## Dependencies
 1. lwjgl (for rendering)
 2. freetype (for parsing character from ttf)
