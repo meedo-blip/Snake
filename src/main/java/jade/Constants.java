@@ -11,9 +11,8 @@ public class Constants {
     public static final int MAX_BATCH_SIZE = 1000;
 
     public static Shader DEFAULT_SH = AssetPool.getShader( "assets/shaders/default.glsl"),
-                        FONT_SH = AssetPool.getShader("assets/shaders/sdf.glsl"),
-                        CIRCLE_SH = AssetPool.getShader("assets/shaders/circle.glsl");
-
+                        FONT_SH = AssetPool.getShader("assets/shaders/sdf.glsl");
+    
     public static MyFont ARIAL_FONT;
 
     public static final Vector4f BLACK = new Vector4f(0,0,0,1),

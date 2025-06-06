@@ -79,8 +79,6 @@ public class DefaultBatch extends QuadBatch {
         // 0 means no texture
         float tex_id = textures.indexOf(sprite.getTexId()) + 1;
 
-        System.out.println("Tex Id of " + sprite.getName() + " is " + tex_id);
-
         float halfX = transform.scale.x / 2;
         float halfY = transform.scale.y / 2;
 

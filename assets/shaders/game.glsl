@@ -1,5 +1,5 @@
 #type vertex
-#version 330 core
+#version 300 es
 
 layout (location=0) in vec3 aCenter;
 layout (location=1) in vec2 aScale;
@@ -9,7 +9,8 @@ layout (location=3) in float aRotate;
 out vec3 fColor;
 out vec2 fTexCoords;
 out vec2 fCoords;
-out float fTexId, fAttribs;
+out float fTexId;
+flat out int fAttribs;
 
 uniform mat4 uView;
 uniform mat4 uProjection;
@@ -27,9 +28,9 @@ void main() {
 
     vec2 center = aCenter.xy * uPixel;
 
-    vec2 pos = (vert == 2 ? vec2(-aScale.x, -aScale.y)
-    : vert == 3 ? vec2(aScale.x, -aScale.y)
-    : vert == 1 ? vec2(-aScale.x, aScale.y)
+    vec2 pos = ((vert == 2) ? vec2(-aScale.x, -aScale.y)
+    : (vert == 3) ? vec2(aScale.x, -aScale.y)
+    : (vert == 1) ? vec2(-aScale.x, aScale.y)
     : vec2(aScale.x, aScale.y));
 
     fColor = aColor;
@@ -39,9 +40,10 @@ void main() {
         : vert == 2 ? vec2(1.0, 0.0)
         : vec2(1.0, 1.0);
 
-    fTexId = attribs & 15;
+    float texId = float(attribs & 15);
+    fTexId = texId > 0.0 ? texId : -1.0;
 
-    fCoords = vec2(round(aCenter.x), round(aCenter.y));
+    fCoords = vec2(round(float(aCenter.x)), float(round(float(aCenter.y))));
 
     if((attribs & 112) == 0) {
         float c = cos(aRotate), s = sin(aRotate);
@@ -53,13 +55,14 @@ void main() {
 }
 
 #type fragment
-#version 330 core
+#version 300 es
+precision mediump float; // Required for ES
 
 in vec3 fColor;
 in vec2 fTexCoords;
 in vec2 fCoords;
 in float fTexId;
-in float fAttribs;
+flat in int fAttribs;
 
 uniform sampler2D uTextures[8];
                             //  y = mx + c
@@ -79,21 +82,27 @@ out vec4 color;
 void main() {
     int shape = int(fAttribs) - 3;
 
+    float x = fTexCoords.x;
+    float y = fTexCoords.y - 0.5f;
+
     if (shape == -3) {
-        if (pow(fTexCoords.x, 2) + pow(fTexCoords.y - 0.5, 2) > 0.25)
-        discard;
+        if ((x * x) + (y * y) > 0.25)
+            discard;
     }
     else if (shape == -2) {
-        if (pow(fTexCoords.x - 0.5, 2) + pow(fTexCoords.y - 0.5, 2) > 0.25) {
+        x -= 0.5;
+        if ((x * x) + (y * y) > 0.25)
             discard;
-        }
     }
 
     else if (shape >= 0) {
-        float ox = (shape & 1)  ^ ((shape & 1) ^ ((shape & 2) >> 1)),
-        oy = ((shape & 2) >> 1) ^ ((shape & 1) ^ ((shape & 2) >> 1));
+        float ox = float((shape & 1)  ^ ((shape & 1) ^ ((shape & 2) >> 1))),
+        oy = float(((shape & 2) >> 1) ^ ((shape & 1) ^ ((shape & 2) >> 1)));
 
-        float dist = pow(fTexCoords.x - ox, 2) + pow(fTexCoords.y - oy, 2);
+        float dx = fTexCoords.x - ox;
+        float dy = fTexCoords.y - oy;
+
+        float dist = (dy * dy) + (dx * dx);
 
         if (dist < 0.0675 || dist > 0.5625) {
             discard;
@@ -112,10 +121,19 @@ void main() {
     }
 
 
-    if (fTexId > 0) {
-        color = vec4(fColor.xyz, 1) * texture(uTextures[int(fTexId)], fTexCoords);
+    if (fTexId > 0.0) {
+        int id = int(fTexId);
+        switch(id) {
+            case 1: color = vec4(fColor, 1.0) * texture(uTextures[1], fTexCoords); break;
+            case 2: color = vec4(fColor, 1.0) * texture(uTextures[2], fTexCoords); break;
+            case 3: color = vec4(fColor, 1.0) * texture(uTextures[3], fTexCoords); break;
+            case 4: color = vec4(fColor, 1.0) * texture(uTextures[4], fTexCoords); break;
+            case 5: color = vec4(fColor, 1.0) * texture(uTextures[5], fTexCoords); break;
+            case 6: color = vec4(fColor, 1.0) * texture(uTextures[6], fTexCoords); break;
+            case 7: color = vec4(fColor, 1.0) * texture(uTextures[7], fTexCoords); break;
+        }
     } else {
-        color = vec4(fColor.xyz, 1);
+        color = vec4(fColor, 1.0);
     }
 
    // if(fTexCoords.x <= 0.05 || fTexCoords.y <= 0.05

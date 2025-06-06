@@ -1,5 +1,5 @@
 #type vertex
-#version 330 core
+#version 300 es
 
 layout (location=0) in vec3 aCenter;
 layout (location=1) in vec2 aScale;
@@ -23,21 +23,25 @@ void main() {
 
     int vert = gl_VertexID & 3;
 
-    vec3 pos = aCenter + vec3(vert == 2 ? -aScale
-                            : vert == 3 ? vec2(aScale.x, -aScale.y)
-                            : vert == 1 ? vec2(-aScale.x, aScale.y)
-                            : aScale , 0.0);
+    vec3 pos = aCenter + vec3(
+        (vert == 2) ? -aScale :
+        (vert == 3) ? vec2(aScale.x, -aScale.y) :
+        (vert == 1) ? vec2(-aScale.x, aScale.y) :
+                      aScale,
+        0.0
+    );
 
     fColor = aColor;
     fTexCoords = aTexCoords;
-    fTexId = aTexId;
+    fTexId = aTexId > 0.0 ? float(aTexId) : -1.0;
 
     gl_Position = uView * uProjection * vec4(pos, 1.0);
 
 }
 
 #type fragment
-#version 330 core
+#version 300 es
+precision mediump float;
 
 in vec4 fColor;
 in vec2 fTexCoords;
@@ -51,8 +55,9 @@ void main() {
     if(fColor.w == 0.0)
         discard;
 
-    if (fTexId > 0) {
-        switch(int(fTexId)) {
+    if (fTexId > 0.0) {
+        int id = int(fTexId);
+        switch(id) {
             case 1: color = fColor * texture(uTextures[1], fTexCoords); break;
             case 2: color = fColor * texture(uTextures[2], fTexCoords); break;
             case 3: color = fColor * texture(uTextures[3], fTexCoords); break;
